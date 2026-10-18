@@ -1,0 +1,1718 @@
+# CAHIER DES CHARGES FONCTIONNEL ET TECHNIQUE
+## Plateforme numérique de valorisation des femmes et des filles engagées
+
+**Version :** 1.0 — Cahier des charges initial  
+**Nature du projet :** Plateforme web publique avec espace d’administration sécurisé  
+**Public cible :** Femmes et filles engagées, associations, organisations, partenaires, médias et grand public  
+**Hébergement envisagé :** VPS LWS existant  
+**Mode de développement :** Agent de développement IA Z.ai, avec validation progressive  
+**Slogan proposé :** « Celles qui font avancer le monde méritent d'être connues. »
+
+---
+
+# 1. PRÉSENTATION DU PROJET
+
+## 1.1. Contexte
+
+De nombreuses femmes et filles contribuent au développement de leurs communautés à travers des actions éducatives, sociales, humanitaires, entrepreneuriales, environnementales, culturelles et citoyennes. Pourtant, leurs initiatives et leurs parcours restent parfois peu visibles.
+
+Le projet consiste à créer une plateforme numérique permettant de documenter, valoriser et rendre accessibles leurs engagements, leurs réalisations et leurs témoignages.
+
+La plateforme doit dépasser le simple répertoire de personnes. Elle doit constituer un espace de reconnaissance, de transmission d'expériences et de découverte de parcours inspirants.
+
+## 1.2. Vision
+
+Devenir une plateforme de référence pour la découverte et la valorisation des femmes et des filles qui contribuent positivement à leur communauté.
+
+## 1.3. Objectifs
+
+- Identifier et documenter les parcours de femmes et de filles engagées.
+- Donner à chaque personne retenue un profil public professionnel.
+- Permettre aux administrateurs de collecter des informations sans imposer la création d'un compte aux participantes.
+- Mettre en lumière les initiatives et les résultats concrets.
+- Faciliter la découverte de profils par domaine, pays, région ou type d'engagement.
+- Permettre au public de proposer de nouvelles personnes à valoriser.
+- Recueillir des témoignages respectueux et vérifiables.
+- Créer progressivement un réseau de personnes inspirantes.
+- Garantir la confidentialité des informations privées et la protection des mineures.
+
+## 1.4. Principes fondamentaux
+
+La plateforme doit respecter les principes suivants :
+
+1. La qualité et l'impact d'un engagement priment sur la popularité en ligne.
+2. Aucune personne ne doit être présentée comme lauréate sans validation administrative.
+3. Les informations fournies ne sont jamais publiées automatiquement.
+4. Les données privées ne doivent jamais apparaître dans les pages publiques ou les résultats de recherche.
+5. Les personnes concernées doivent pouvoir demander une correction ou un retrait de leurs informations.
+6. Les profils de mineures nécessitent des garanties de protection renforcées.
+7. Les évaluations publiques ne doivent pas permettre le harcèlement, la manipulation ou la compétition malsaine.
+8. Les performances, la sécurité et la simplicité d'utilisation sont prioritaires.
+
+# 2. UTILISATEURS ET RÔLES
+
+La plateforme comprend cinq catégories d'utilisateurs.
+
+## 2.1. Visiteur public
+
+Un visiteur non connecté peut :
+
+- consulter la page d'accueil ;
+- parcourir l'annuaire des profils publiés ;
+- rechercher une personne ;
+- filtrer les profils par critères autorisés ;
+- consulter les profils publics ;
+- partager un profil ;
+- proposer une nouvelle personne ;
+- soumettre un témoignage ;
+- attribuer une note si cette fonctionnalité est activée ;
+- consulter les pages institutionnelles, la politique de confidentialité et les conditions d'utilisation ;
+- contacter l'équipe par les moyens publiés.
+
+Aucune création de compte ne doit être obligatoire pour la consultation du site.
+
+## 2.2. Personne invitée à compléter son parcours
+
+Une personne invitée reçoit un lien privé lui permettant de renseigner son dossier.
+
+Elle peut :
+
+- ouvrir son lien personnel ;
+- consulter les explications sur la collecte et la publication de ses données ;
+- remplir son formulaire en plusieurs étapes ;
+- sauvegarder automatiquement sa progression ;
+- reprendre son formulaire ultérieurement ;
+- téléverser des photographies et des documents autorisés ;
+- prévisualiser les informations destinées à être publiées ;
+- préciser quelles informations peuvent être rendues publiques ;
+- confirmer les consentements nécessaires ;
+- soumettre son dossier à l'équipe administrative ;
+- recevoir une confirmation de soumission.
+
+Elle ne doit pas avoir à créer un compte pour effectuer ces opérations.
+
+Elle ne doit pas pouvoir consulter le dossier d'une autre personne ni accéder à l'administration.
+
+## 2.3. Administrateur principal
+
+L'administrateur principal dispose des permissions les plus élevées.
+
+Il peut :
+
+- créer et gérer les comptes administratifs ;
+- attribuer ou retirer les rôles autorisés ;
+- créer, modifier, désactiver et supprimer les dossiers selon les règles de conservation ;
+- générer, révoquer et renouveler les invitations ;
+- examiner les dossiers soumis ;
+- publier, dépublier ou archiver les profils ;
+- gérer les témoignages et les propositions publiques ;
+- administrer les catégories, les badges et les paramètres ;
+- consulter les journaux d'audit ;
+- gérer les demandes de correction, de retrait ou d'effacement ;
+- consulter les statistiques globales ;
+- lancer ou vérifier les opérations de sauvegarde et de restauration, selon les capacités de l'hébergement.
+
+Les actions sensibles doivent être limitées aux personnes autorisées et consignées dans les journaux.
+
+## 2.4. Modérateur
+
+Le modérateur dispose uniquement des permissions nécessaires à la modération.
+
+Il peut :
+
+- examiner les témoignages ;
+- approuver, refuser ou signaler les contenus ;
+- traiter les propositions de nouvelles personnes ;
+- signaler les doublons ;
+- demander un examen complémentaire.
+
+Il ne peut pas gérer les administrateurs, modifier les paramètres de sécurité ni accéder aux fonctions qui lui sont interdites.
+
+## 2.5. Responsable éditorial
+
+Ce rôle, facultatif au lancement, permet de gérer les textes, les catégories et les contenus éditoriaux sans donner accès à toutes les fonctions d'administration.
+
+Les permissions doivent être configurables et vérifiées côté serveur.
+
+# 3. ARCHITECTURE GÉNÉRALE DU SITE
+
+Le site doit comprendre les espaces suivants :
+
+1. Site public.
+2. Annuaire des personnes valorisées.
+3. Pages publiques individuelles.
+4. Formulaire privé accessible par invitation.
+5. Espace d'administration.
+6. Pages légales et de protection des données.
+7. Système de gestion des médias.
+8. Système de notifications.
+9. Journalisation et outils de maintenance.
+
+L'interface doit être responsive, rapide, accessible sur mobile et ordinateur, et utilisable avec une connexion internet limitée.
+
+La langue principale est le français. L'architecture pourra permettre d'ajouter d'autres langues ultérieurement, sans imposer une traduction complète dans la première version.
+
+# 4. SITE PUBLIC
+
+## 4.1. Page d'accueil
+
+La page d'accueil doit présenter clairement la mission de la plateforme.
+
+Elle comprend :
+
+- une section héro avec le slogan et un texte de présentation ;
+- un bouton « Découvrir les parcours » ;
+- un bouton « Proposer une personne » ;
+- une sélection de profils récemment publiés ou mis en avant ;
+- une présentation des domaines d'engagement ;
+- une section expliquant la démarche de valorisation ;
+- quelques chiffres clés, uniquement lorsqu'ils reposent sur des données réelles ;
+- une section présentant les critères de sélection ;
+- un appel à contribution ;
+- un pied de page avec les liens institutionnels, légaux et de contact.
+
+Les profils mis en avant doivent être sélectionnés par l'administration ou selon des règles éditoriales définies.
+
+Ne jamais afficher de chiffres fictifs, de témoignages inventés ou de statistiques simulées en production.
+
+## 4.2. Annuaire
+
+L'annuaire affiche uniquement les profils dont le statut est « Publié ».
+
+Chaque carte de profil présente, selon les autorisations de publication :
+
+- la photographie principale ;
+- le nom public ;
+- la fonction ou la présentation courte ;
+- le domaine d'engagement principal ;
+- le pays ou la région, si cette information est autorisée ;
+- une courte description ;
+- un lien vers le profil complet.
+
+Fonctions obligatoires :
+
+- recherche par nom ou mots-clés ;
+- filtre par domaine ;
+- filtre géographique lorsque les données sont disponibles et autorisées ;
+- tri par date de publication ;
+- pagination ou chargement progressif ;
+- état vide lorsque aucun résultat ne correspond ;
+- état de chargement ;
+- message d'erreur en cas de problème ;
+- réinitialisation des filtres.
+
+Les filtres doivent fonctionner réellement avec les données de la base de données. Ils ne doivent pas être de simples éléments visuels.
+
+Ne pas exposer les informations privées dans les paramètres d'URL, les réponses API ou les données envoyées au navigateur.
+
+## 4.3. Catégories d'engagement
+
+Prévoir une gestion administrative des catégories, avec notamment :
+
+- éducation et formation ;
+- santé et bien-être ;
+- droits des femmes et des filles ;
+- environnement et climat ;
+- entrepreneuriat et innovation ;
+- action sociale et humanitaire ;
+- culture et arts ;
+- leadership et citoyenneté ;
+- sciences et technologies ;
+- agriculture et développement local ;
+- sport ;
+- autres domaines.
+
+L'administrateur peut ajouter, renommer, désactiver ou réorganiser les catégories.
+
+Une catégorie désactivée ne doit pas effacer les anciennes données qui lui sont associées.
+
+## 4.4. Profil public individuel
+
+Chaque personne publiée possède une page unique, partageable et indexable par les moteurs de recherche si les conditions de publication sont remplies.
+
+La page comprend, lorsque les informations sont autorisées :
+
+- photographie de couverture ou portrait ;
+- nom public ;
+- présentation courte ;
+- biographie ;
+- domaine d'engagement ;
+- parcours personnel et professionnel ;
+- formation, lorsque pertinente ;
+- responsabilités et expériences ;
+- initiatives menées ;
+- réalisations et résultats documentés ;
+- difficultés rencontrées et leçons apprises ;
+- projets en cours ;
+- vision et ambitions ;
+- témoignages validés ;
+- badges attribués ;
+- date de publication ou de mise à jour, si utile ;
+- bouton de partage ;
+- lien de signalement ou de demande de correction.
+
+La page ne doit afficher que les champs approuvés pour publication.
+
+Les coordonnées privées, adresses précises, pièces justificatives, données de vérification, notes internes et informations de sécurité sont strictement exclues.
+
+Les profils de mineures doivent utiliser un modèle de publication restreint : limiter les données personnelles, éviter la localisation précise et ne pas exposer les coordonnées directes.
+
+## 4.5. Partage et référencement
+
+Chaque profil public doit posséder :
+
+- une URL stable et lisible ;
+- un titre SEO unique ;
+- une description SEO ;
+- une image de partage autorisée ;
+- des balises Open Graph ;
+- une URL canonique ;
+- une gestion correcte des erreurs 404 ;
+- une politique d'indexation adaptée au statut du profil.
+
+Les pages privées, les formulaires d'invitation et l'administration ne doivent pas être indexés.
+
+Une page dépubliée ou archivée ne doit plus rester accessible publiquement comme si elle était active.
+
+## 4.6. Pages institutionnelles
+
+Créer les pages suivantes :
+
+- À propos ;
+- Notre mission ;
+- Nos critères de valorisation ;
+- Comment proposer une personne ;
+- Contact ;
+- Politique de confidentialité ;
+- Politique relative aux cookies, si applicable ;
+- Conditions d'utilisation ;
+- Politique de modération ;
+- Procédure de correction et de retrait des profils.
+
+Le contenu juridique devra être adapté au fonctionnement réel du projet et au droit applicable, notamment en matière de données personnelles et de protection des mineures.
+
+# 5. ESPACE D'ADMINISTRATION
+
+## 5.1. Authentification
+
+L'administration doit être protégée par une authentification sécurisée.
+
+Fonctions :
+
+- connexion ;
+- déconnexion ;
+- récupération de compte ;
+- réinitialisation sécurisée du mot de passe ;
+- gestion des sessions ;
+- limitation des tentatives de connexion ;
+- révocation des sessions si nécessaire ;
+- possibilité d'activer une authentification multifacteur pour les comptes sensibles.
+
+Ne pas proposer d'inscription administrative publique.
+
+Le premier administrateur doit être créé par une procédure de configuration sécurisée, sans identifiants par défaut conservés en production.
+
+## 5.2. Tableau de bord
+
+Afficher des statistiques réellement calculées à partir de la base de données :
+
+- nombre total de dossiers ;
+- dossiers en préparation ;
+- invitations envoyées ou actives ;
+- dossiers en attente ;
+- dossiers nécessitant des clarifications ;
+- profils publiés ;
+- profils archivés ;
+- témoignages à modérer ;
+- propositions à examiner ;
+- demandes de correction ou de retrait en attente.
+
+Chaque indicateur doit renvoyer vers la liste correspondante.
+
+Les statistiques doivent être cohérentes après chaque création, modification, suppression logique ou changement de statut.
+
+## 5.3. Gestion des dossiers
+
+L'administrateur peut :
+
+- créer un dossier ;
+- modifier les informations internes ;
+- rechercher un dossier ;
+- filtrer par statut ;
+- consulter l'historique des actions ;
+- générer une invitation ;
+- renvoyer une invitation selon les règles de sécurité ;
+- révoquer une invitation ;
+- examiner le formulaire soumis ;
+- demander des précisions ;
+- approuver le dossier ;
+- refuser la publication avec un motif interne ;
+- publier le profil ;
+- dépublier un profil ;
+- archiver un dossier ;
+- traiter une demande de correction ou de retrait.
+
+Les actions irréversibles doivent demander une confirmation explicite.
+
+La suppression définitive ne doit pas être la méthode habituelle de gestion. Utiliser l'archivage lorsque cela suffit, tout en respectant les demandes d'effacement et les obligations de conservation applicables.
+
+## 5.4. Statuts des dossiers
+
+Prévoir au minimum les statuts suivants :
+
+- Brouillon ;
+- Invitation créée ;
+- Invitation envoyée ;
+- En cours de remplissage ;
+- Soumis ;
+- En cours d'examen ;
+- Informations complémentaires demandées ;
+- Complément reçu ;
+- Approuvé ;
+- Publié ;
+- Refusé ;
+- Archivé ;
+- Retrait demandé ;
+- Dépublication en cours.
+
+Définir précisément les transitions autorisées entre les statuts.
+
+Exemple : un dossier ne peut être publié que si les validations éditoriales et les autorisations de publication nécessaires sont présentes.
+
+## 5.5. Gestion des administrateurs
+
+Fonctions :
+
+- création d'un compte ;
+- modification du rôle ;
+- activation ou désactivation ;
+- réinitialisation d'accès ;
+- consultation de la dernière connexion, si disponible ;
+- consultation des actions réalisées ;
+- révocation des sessions.
+
+La désactivation d'un administrateur ne doit pas supprimer les traces historiques de ses actions.
+
+Prévoir une protection contre la désactivation accidentelle du dernier administrateur principal.
+
+## 5.6. Journal d'audit
+
+Enregistrer au minimum :
+
+- connexion et déconnexion pertinentes ;
+- échecs de connexion ;
+- création ou révocation d'une invitation ;
+- changement de statut d'un dossier ;
+- publication et dépublication ;
+- modification d'un profil ;
+- changement de rôle ;
+- décision de modération ;
+- traitement d'une demande de retrait ;
+- action de sauvegarde ou de restauration, si intégrée.
+
+Chaque entrée doit contenir l'identifiant de l'acteur, l'action, la date, la cible concernée et le résultat.
+
+Éviter d'enregistrer les mots de passe, jetons secrets, données complètes de formulaires ou pièces privées dans les journaux.
+
+Les journaux doivent être protégés contre la modification par les utilisateurs ordinaires et leur durée de conservation doit être définie.
+
+# 6. SYSTÈME D'INVITATION PRIVÉE
+
+Cette fonctionnalité est centrale dans le projet.
+
+## 6.1. Création de l'invitation
+
+Lorsqu'un administrateur crée un dossier, il peut générer un lien personnel permettant à la participante de remplir son parcours.
+
+Le système doit générer un jeton aléatoire cryptographiquement sûr d'au moins 256 bits.
+
+Le jeton brut ne doit être visible qu'au moment de sa création et de la remise du lien. En base de données, conserver uniquement une empreinte cryptographique appropriée du jeton.
+
+Chaque invitation doit être associée à un dossier précis.
+
+## 6.2. Propriétés du lien
+
+Le lien doit :
+
+- être difficile à deviner ;
+- être limité à un seul dossier ;
+- avoir une date d'expiration configurable ;
+- pouvoir être révoqué ;
+- pouvoir être renouvelé par un administrateur autorisé ;
+- devenir invalide après révocation ou expiration ;
+- ne pas permettre de découvrir d'autres dossiers ;
+- être protégé contre les tentatives automatisées ;
+- ne pas apparaître dans les journaux ou outils d'analyse sous sa forme secrète.
+
+Une invitation ne doit jamais être réutilisée pour accéder à un autre dossier.
+
+Prévoir une procédure de remplacement : lorsqu'un nouveau lien est émis, l'ancien doit être révoqué selon la politique retenue.
+
+## 6.3. Transmission
+
+Pour le lancement, l'administrateur peut copier le lien et le transmettre manuellement par WhatsApp, e-mail ou un autre canal.
+
+L'envoi automatique par e-mail ou messagerie pourra être ajouté ultérieurement.
+
+L'interface doit afficher clairement si l'invitation est active, expirée ou révoquée.
+
+## 6.4. Sécurité de la session invitée
+
+- Ne pas placer le jeton dans les journaux applicatifs.
+- Limiter les données accessibles au seul dossier associé.
+- Éviter de conserver le secret dans des stockages navigateur persistants non nécessaires.
+- Mettre en place des en-têtes de sécurité et une politique de référent adaptée.
+- Empêcher l'accès à l'administration depuis la session invitée.
+- Limiter les tentatives répétées.
+- Prévoir une procédure d'expiration et de reprise du formulaire.
+
+Le comportement exact de la session devra être défini techniquement afin de permettre la sauvegarde et la reprise sans laisser le dossier accessible à une personne non autorisée.
+
+# 7. FORMULAIRE DE PARCOURS
+
+## 7.1. Principes
+
+Le formulaire doit être long, clair et découpé en étapes. Il doit fonctionner sur mobile et ne pas obliger la participante à tout remplir en une seule session.
+
+Fonctions obligatoires :
+
+- progression visible ;
+- navigation entre les étapes ;
+- sauvegarde automatique ;
+- indicateur de sauvegarde ;
+- reprise après fermeture du navigateur ;
+- reprise après coupure internet, dans la limite des données déjà enregistrées ;
+- validation des champs ;
+- messages d'erreur compréhensibles ;
+- confirmation avant soumission ;
+- aperçu des informations publiques ;
+- distinction entre champs obligatoires et facultatifs ;
+- affichage des informations de confidentialité au bon moment.
+
+La sauvegarde doit être réalisée côté serveur dès que la connexion le permet. Une copie locale temporaire peut améliorer le confort, mais ne doit pas être considérée comme l'unique sauvegarde.
+
+## 7.2. Étape 1 — Présentation et consentements
+
+Présenter :
+
+- l'objectif de la collecte ;
+- l'identité du responsable du traitement, à compléter par le porteur du projet ;
+- les informations collectées ;
+- les finalités ;
+- les informations susceptibles d'être publiées ;
+- les personnes qui peuvent accéder aux données privées ;
+- les durées de conservation ou les critères qui les déterminent ;
+- les modalités de correction, de retrait et de contact ;
+- les éventuels services tiers utilisés.
+
+Recueillir les consentements nécessaires de manière distincte et compréhensible.
+
+L'acceptation de la politique de confidentialité ne doit pas être présentée comme une autorisation générale de publier toutes les informations.
+
+## 7.3. Étape 2 — Identité et présentation
+
+Champs possibles :
+
+- nom et prénom ;
+- nom public ou nom d'usage ;
+- année de naissance, uniquement si nécessaire ;
+- pays ;
+- région ou ville, si approprié ;
+- photographie ;
+- présentation courte ;
+- langues parlées, facultatif.
+
+La date de naissance complète, l'adresse résidentielle et les pièces d'identité ne doivent pas être collectées par défaut. Tout besoin exceptionnel doit être justifié et traité séparément.
+
+## 7.4. Étape 3 — Parcours personnel
+
+Questions possibles :
+
+- Comment décririez-vous votre parcours ?
+- Qu'est-ce qui vous a amenée à vous engager ?
+- Quel événement a influencé votre engagement ?
+- Quelles difficultés avez-vous rencontrées ?
+- Quelles leçons en avez-vous tirées ?
+- Quelle personne ou quelle expérience vous inspire ?
+
+Chaque question doit permettre une réponse libre, avec une indication de longueur recommandée.
+
+## 7.5. Étape 4 — Parcours scolaire et professionnel
+
+Champs :
+
+- formations pertinentes ;
+- expériences professionnelles ;
+- responsabilités exercées ;
+- associations ou organisations, si la participante accepte leur publication ;
+- compétences acquises ;
+- distinctions ou reconnaissances pertinentes.
+
+Les informations scolaires et professionnelles doivent rester facultatives lorsqu'elles ne sont pas indispensables à la valorisation.
+
+## 7.6. Étape 5 — Engagement et initiatives
+
+Pour chaque initiative, permettre d'ajouter :
+
+- titre ;
+- description ;
+- date ou période ;
+- zone d'action générale ;
+- public bénéficiaire ;
+- rôle exact de la participante ;
+- partenaires, lorsque leur mention est autorisée ;
+- objectifs ;
+- résultats obtenus ;
+- éléments permettant d'étayer les résultats ;
+- difficultés ;
+- enseignements ;
+- état du projet.
+
+Autoriser plusieurs initiatives.
+
+Les résultats doivent distinguer les réalisations effectivement observées des objectifs annoncés ou des estimations.
+
+## 7.7. Étape 6 — Vision et projets futurs
+
+Questions :
+
+- Quelle évolution souhaitez-vous apporter à votre communauté ?
+- Quels sont vos objectifs pour les prochaines années ?
+- Quels projets souhaitez-vous développer ?
+- De quel accompagnement auriez-vous besoin ?
+- Quel message souhaitez-vous transmettre à d'autres jeunes ?
+
+## 7.8. Étape 7 — Médias et justificatifs
+
+Autoriser, selon les besoins :
+
+- photographie de profil ;
+- photographies d'activités ;
+- affiches ou publications ;
+- documents de présentation ;
+- liens vers des projets publics ;
+- autres éléments pertinents.
+
+Contrôles obligatoires :
+
+- formats autorisés ;
+- taille maximale configurable ;
+- vérification du type réel de fichier ;
+- noms de fichiers générés par le serveur ;
+- protection contre les fichiers exécutables ;
+- limitation du nombre de fichiers ;
+- stockage privé des justificatifs ;
+- accès réservé aux personnes autorisées ;
+- séparation entre médias publics validés et documents privés.
+
+Ne pas rendre un fichier public uniquement parce qu'il a été téléversé.
+
+## 7.9. Étape 8 — Choix de publication
+
+Permettre à la participante de visualiser et de comprendre :
+
+- les informations destinées au public ;
+- les informations réservées à l'équipe ;
+- les médias proposés à la publication ;
+- les champs facultatifs qu'elle préfère ne pas publier.
+
+Aucune donnée privée ne doit être publiée par défaut.
+
+La publication doit nécessiter une validation administrative, même lorsque la participante a soumis son dossier.
+
+## 7.10. Étape 9 — Vérification et soumission
+
+Avant l'envoi, afficher un récapitulatif.
+
+La participante peut revenir aux étapes précédentes pour corriger les erreurs.
+
+Après soumission :
+
+- le dossier passe au statut « Soumis » ;
+- la date de soumission est enregistrée ;
+- les modifications sont limitées selon la politique définie ;
+- une confirmation est affichée ;
+- l'administration est informée ;
+- la participante reçoit une indication sur la suite du processus.
+
+Si une correction est demandée, le formulaire doit pouvoir être rouvert de manière sécurisée, sans créer un nouveau dossier.
+
+# 8. EXAMEN ET PUBLICATION
+
+## 8.1. Procédure de validation
+
+L'équipe doit examiner :
+
+- la cohérence du parcours ;
+- la qualité des informations ;
+- la pertinence de l'engagement ;
+- les éléments de preuve disponibles ;
+- les autorisations de publication ;
+- les risques liés à la confidentialité ;
+- les risques de diffamation ou d'exposition injustifiée de tiers.
+
+La plateforme ne doit pas prétendre qu'une information est vérifiée lorsqu'elle ne l'a pas été.
+
+## 8.2. Demande de clarification
+
+L'administrateur peut demander des précisions.
+
+La demande comprend :
+
+- les champs concernés ;
+- les questions à clarifier ;
+- une date indicative de réponse ;
+- un message explicatif.
+
+Le dossier passe au statut « Informations complémentaires demandées ».
+
+La participante reçoit une notification si un canal de contact autorisé existe.
+
+## 8.3. Refus
+
+Un refus doit être enregistré avec un motif interne.
+
+Le motif peut être communiqué à la participante dans un langage respectueux, selon la politique éditoriale.
+
+Les dossiers refusés ne doivent pas être publiés ni apparaître dans l'annuaire.
+
+## 8.4. Publication
+
+Avant publication, le système doit vérifier :
+
+- que le dossier a été approuvé ;
+- que les consentements nécessaires sont présents ;
+- que les champs publics sont définis ;
+- que les médias ont été validés ;
+- que les données privées sont exclues ;
+- que les règles spécifiques aux mineures sont respectées.
+
+La publication doit être une action explicite et journalisée.
+
+## 8.5. Dépublication et retrait
+
+Un administrateur autorisé doit pouvoir dépublier rapidement un profil.
+
+Le système doit également gérer les demandes de correction, de retrait et d'effacement, avec suivi de leur traitement.
+
+La dépublication doit retirer le profil de l'annuaire et empêcher son accès public normal. Les mécanismes de cache et de référencement doivent être pris en compte.
+
+Les sauvegardes et obligations légales éventuelles doivent être traitées selon une politique de conservation documentée.
+
+# 9. TÉMOIGNAGES
+
+## 9.1. Soumission
+
+Un visiteur peut proposer un témoignage associé à un profil publié.
+
+Champs :
+
+- nom public ou pseudonyme ;
+- témoignage ;
+- relation avec la personne, facultative ;
+- consentement aux règles de publication ;
+- moyen de contact facultatif pour une vérification, conservé séparément si nécessaire.
+
+Ne pas publier automatiquement un témoignage.
+
+## 9.2. Modération
+
+Statuts :
+
+- En attente ;
+- En examen ;
+- Approuvé ;
+- Refusé ;
+- Signalé ;
+- Archivé.
+
+L'équipe doit pouvoir :
+
+- lire le témoignage ;
+- vérifier le contexte si nécessaire ;
+- supprimer les coordonnées personnelles ;
+- refuser les propos injurieux, discriminatoires, menaçants ou manifestement frauduleux ;
+- signaler les contenus problématiques ;
+- conserver une trace de la décision.
+
+Une modification éditoriale substantielle doit respecter le sens du témoignage et les règles de consentement applicables.
+
+## 9.3. Protection contre les abus
+
+Prévoir :
+
+- limitation du nombre de soumissions ;
+- CAPTCHA ou mécanisme équivalent si nécessaire ;
+- limitation des requêtes ;
+- détection de soumissions répétées ;
+- procédure de signalement ;
+- protection contre les injections et le contenu HTML dangereux.
+
+Ne pas considérer l'adresse IP ou l'empreinte du navigateur comme une preuve certaine de l'identité d'une personne.
+
+# 10. NOTES ET ÉVALUATIONS
+
+Cette fonctionnalité est facultative pour le MVP et doit être activée uniquement après validation de son utilité.
+
+Si elle est activée :
+
+- noter de 1 à 5 étoiles ;
+- expliquer clairement ce que la note représente ;
+- empêcher les valeurs hors limites ;
+- limiter les soumissions abusives ;
+- afficher une moyenne uniquement lorsqu'il existe suffisamment de données ;
+- indiquer le nombre de notes ;
+- recalculer correctement la moyenne après modération ou retrait d'une note ;
+- éviter toute modification artificielle des résultats par l'administration sans trace.
+
+Le système doit documenter ses limites : sans compte ni vérification d'identité, il est impossible de garantir parfaitement qu'une personne ne vote qu'une seule fois.
+
+Il ne faut pas présenter les notes comme une mesure scientifique de l'impact social.
+
+**Recommandation :** ne pas intégrer les notes au classement des profils. Le classement ne doit pas dépendre de la popularité ou du nombre de votes.
+
+# 11. PROPOSITION PUBLIQUE DE NOUVELLES PERSONNES
+
+## 11.1. Formulaire
+
+Un visiteur peut proposer une personne non encore présente dans l'annuaire.
+
+Champs :
+
+- nom public de la personne ;
+- domaine d'engagement ;
+- présentation de son action ;
+- raison de la proposition ;
+- lien vers une source publique, si disponible ;
+- nom du proposant, facultatif ;
+- contact du proposant, facultatif et traité de manière confidentielle ;
+- déclaration de bonne foi et acceptation des règles de soumission.
+
+Ne pas demander de données sensibles inutiles sur la personne proposée.
+
+## 11.2. Traitement
+
+À la soumission :
+
+1. vérifier les champs ;
+2. appliquer les protections anti-spam ;
+3. rechercher les doublons potentiels ;
+4. créer une proposition non publique ;
+5. informer l'équipe administrative ;
+6. permettre l'examen humain.
+
+Statuts :
+
+- Nouvelle proposition ;
+- À examiner ;
+- Doublon potentiel ;
+- À vérifier ;
+- Acceptée pour prise de contact ;
+- Refusée ;
+- Archivée.
+
+L'acceptation d'une proposition ne doit pas publier automatiquement la personne.
+
+L'équipe doit vérifier l'identité, la pertinence de la proposition et les conditions nécessaires avant toute invitation.
+
+# 12. BADGES ET RECONNAISSANCES
+
+Pour la première version, la gestion des badges doit être manuelle.
+
+Exemples de catégories :
+
+- Engagement communautaire ;
+- Innovation sociale ;
+- Leadership ;
+- Protection de l'environnement ;
+- Transmission des savoirs ;
+- Initiative éducative ;
+- Impact local documenté.
+
+Chaque badge comprend :
+
+- nom ;
+- description ;
+- icône ;
+- critères d'attribution ;
+- date d'attribution ;
+- administrateur ayant effectué l'attribution ;
+- éventuelle date de retrait.
+
+L'administration peut attribuer ou retirer un badge avec justification.
+
+Un badge ne doit pas être confondu avec une certification officielle. Toute formulation doit refléter précisément la reconnaissance accordée.
+
+Les badges automatiques et les systèmes de progression sont reportés à une version ultérieure.
+
+# 13. CLASSEMENT ET MISE EN AVANT
+
+Le classement public est reporté après le lancement.
+
+La plateforme ne doit pas créer un classement fondé uniquement sur :
+
+- les notes ;
+- le nombre de témoignages ;
+- le nombre de vues ;
+- le nombre de partages ;
+- la popularité sur les réseaux sociaux.
+
+Si un système de classement est introduit ultérieurement, ses critères devront être publics, explicables, cohérents et vérifiables.
+
+Les critères possibles comprennent :
+
+- résultats documentés ;
+- continuité de l'engagement ;
+- pertinence de l'initiative ;
+- contribution à la communauté ;
+- qualité des éléments de preuve ;
+- enseignements ou effets durables.
+
+Le classement doit tenir compte des différences de moyens, d'ancienneté et de contexte entre les initiatives.
+
+La mise en avant éditoriale par l'équipe est préférable au lancement.
+
+# 14. PROTECTION DES MINEURES
+
+La plateforme peut concerner des filles mineures. Leur protection constitue une exigence de conception, et non une option.
+
+Exigences :
+
+- définir une procédure de consentement adaptée à l'âge et au droit applicable ;
+- obtenir l'autorisation du représentant légal lorsqu'elle est requise ;
+- recueillir, lorsque nécessaire, l'accord de la mineure elle-même, selon son âge et sa compréhension ;
+- ne pas publier de données sensibles ou de coordonnées directes ;
+- éviter la date de naissance complète ;
+- éviter la localisation précise, l'établissement scolaire et les habitudes quotidiennes ;
+- ne pas permettre la messagerie publique directe vers une mineure ;
+- examiner les photographies et documents avant publication ;
+- limiter les accès internes aux données ;
+- permettre une demande de retrait simplifiée ;
+- ne pas utiliser les profils de mineures dans un classement de popularité ;
+- ne pas afficher de témoignages susceptibles de les exposer à des risques.
+
+Les données permettant d'identifier une mineure doivent être limitées au strict nécessaire.
+
+Toute fonctionnalité qui augmente les risques d'exploitation, de harcèlement ou de contact non sollicité doit être écartée ou conçue avec des protections spécifiques.
+
+# 15. CONFIDENTIALITÉ ET DONNÉES PERSONNELLES
+
+## 15.1. Classification
+
+Séparer au minimum trois catégories :
+
+**Données publiques approuvées :** nom public, biographie validée, initiatives publiées et médias autorisés.
+
+**Données privées de gestion :** coordonnées de contact, réponses non destinées au public, historique des invitations et échanges administratifs.
+
+**Données sensibles de sécurité :** jetons d'invitation, secrets d'authentification, journaux techniques et éléments de sécurité.
+
+Chaque catégorie doit avoir des règles d'accès et de conservation distinctes.
+
+## 15.2. Minimisation
+
+Ne collecter que les informations nécessaires aux objectifs du projet.
+
+Ne pas collecter par défaut :
+
+- copie de pièce d'identité ;
+- adresse complète du domicile ;
+- données bancaires ;
+- informations médicales ;
+- informations politiques ou religieuses ;
+- données sensibles sur les proches ;
+- coordonnées de tiers sans nécessité.
+
+Tout champ exceptionnel doit être justifié et soumis à une validation spécifique.
+
+## 15.3. Droits des personnes
+
+Mettre en place une procédure pour :
+
+- demander l'accès aux données ;
+- corriger une information ;
+- demander une limitation ou un retrait de publication ;
+- demander l'effacement lorsque cela s'applique ;
+- retirer un consentement lorsque celui-ci constitue la base du traitement ;
+- signaler une erreur ou un risque de sécurité.
+
+Les demandes doivent être enregistrées, suivies et clôturées avec une trace de décision.
+
+## 15.4. Conservation
+
+Définir une politique de conservation pour :
+
+- dossiers non terminés ;
+- invitations expirées ;
+- dossiers refusés ;
+- profils publiés ;
+- témoignages ;
+- coordonnées des proposants ;
+- journaux d'audit ;
+- sauvegardes.
+
+Les durées doivent être décidées selon les besoins réels et les obligations légales applicables. Ne pas conserver toutes les données indéfiniment par défaut.
+
+# 16. DESIGN ET IDENTITÉ VISUELLE
+
+## 16.1. Direction artistique
+
+L'interface doit être élégante, moderne, éditoriale, humaine et institutionnelle.
+
+Palette proposée :
+
+- Vert profond : `#173D32`
+- Ivoire : `#F8F5EF`
+- Or doux : `#D6B15E`
+- Anthracite : `#202522`
+
+Le vert représente l'engagement et la croissance. L'ivoire apporte de la clarté. L'or est réservé aux accents et aux éléments de reconnaissance.
+
+## 16.2. Principes de design
+
+- approche mobile-first ;
+- typographie lisible ;
+- hiérarchie visuelle claire ;
+- photographies de qualité ;
+- espaces généreux ;
+- cartes sobres ;
+- animations discrètes ;
+- boutons clairement identifiables ;
+- formulaires faciles à parcourir ;
+- contraste suffisant ;
+- cohérence entre site public et administration.
+
+Éviter les animations lourdes, les effets décoratifs excessifs et les composants qui ralentissent les appareils modestes.
+
+## 16.3. États d'interface
+
+Chaque fonctionnalité doit prévoir :
+
+- chargement ;
+- succès ;
+- erreur ;
+- absence de résultat ;
+- champ invalide ;
+- accès non autorisé ;
+- session expirée ;
+- connexion interrompue ;
+- confirmation d'action ;
+- page introuvable.
+
+Ne pas afficher de boutons factices ou de liens sans destination.
+
+# 17. EXIGENCES TECHNIQUES
+
+## 17.1. Architecture
+
+Privilégier une application monolithique modulaire, facile à maintenir et à déployer sur le VPS existant.
+
+L'agent doit proposer une architecture adaptée aux ressources réelles du serveur. Il ne doit pas installer de services supplémentaires sans justification.
+
+La stack envisagée peut inclure :
+
+- Next.js et React ;
+- TypeScript ;
+- un système de composants cohérent ;
+- validation des données avec un schéma côté serveur ;
+- Prisma ou un ORM équivalent ;
+- une base de données adaptée à l'environnement ;
+- une bibliothèque d'authentification compatible avec les versions effectivement retenues ;
+- un stockage durable pour les médias.
+
+Les versions exactes doivent être vérifiées avant installation. Ne pas figer une dépendance ancienne sans examiner sa compatibilité, sa maintenance et ses vulnérabilités connues.
+
+## 17.2. Choix de la base de données
+
+L'agent doit comparer les options en fonction de l'environnement réel.
+
+SQLite peut être retenu si :
+
+- l'application est principalement monolithique ;
+- la charge initiale est modérée ;
+- le stockage est persistant ;
+- la stratégie de sauvegarde est adaptée ;
+- les limites de concurrence sont acceptables.
+
+PostgreSQL peut être préférable si :
+
+- plusieurs applications doivent partager des données ;
+- la concurrence est plus élevée ;
+- les besoins de gestion ou d'exploitation le justifient ;
+- les ressources du VPS sont suffisantes.
+
+Ne pas installer les deux par défaut. Documenter le choix final et ses conséquences sur la sauvegarde, les migrations et la restauration.
+
+## 17.3. Environnement de production
+
+Avant toute modification du VPS :
+
+1. identifier le système d'exploitation ;
+2. vérifier la mémoire et l'espace disque ;
+3. identifier les applications déjà hébergées ;
+4. vérifier les services actifs et les ports utilisés ;
+5. vérifier les accès disponibles ;
+6. identifier les domaines et configurations DNS ;
+7. vérifier la stratégie de sauvegarde existante ;
+8. vérifier la possibilité de restauration ;
+9. identifier les contraintes de l'offre LWS.
+
+Ne pas écraser les fichiers, bases de données, configurations ou services existants.
+
+Ne pas supposer que le serveur est vierge.
+
+## 17.4. Déploiement
+
+Prévoir :
+
+- domaine et DNS configurés ;
+- HTTPS valide ;
+- application exécutée sous un utilisateur système non privilégié ;
+- processus supervisé ;
+- redémarrage automatique après incident ;
+- accès réseau limité ;
+- variables d'environnement protégées ;
+- journaux exploitables ;
+- procédure de mise à jour ;
+- procédure de retour à une version précédente ;
+- surveillance de l'espace disque ;
+- sauvegardes vérifiables.
+
+Un reverse proxy tel que Caddy ou une solution déjà présente peut être utilisé après inspection de l'environnement. Ne pas remplacer une configuration existante sans plan de migration et possibilité de retour arrière.
+
+## 17.5. Fichiers et médias
+
+Les fichiers doivent être stockés sur un espace durable, non dans un répertoire temporaire.
+
+Séparer les médias publics validés des documents privés.
+
+Les fichiers privés ne doivent pas être accessibles simplement en connaissant leur chemin ou leur nom.
+
+Prévoir les limites de taille, le nettoyage des fichiers abandonnés, la suppression contrôlée et les sauvegardes.
+
+## 17.6. Sauvegardes
+
+Prévoir :
+
+- sauvegarde quotidienne de la base de données ;
+- sauvegarde des médias ;
+- copie chiffrée hors du VPS ;
+- rotation et conservation documentées ;
+- contrôle de l'intégrité des sauvegardes ;
+- procédure de restauration testée ;
+- protection des clés et secrets de sauvegarde.
+
+Une sauvegarde n'est considérée comme fiable que si sa restauration a été vérifiée.
+
+La fréquence et les durées de conservation devront être adaptées aux ressources et aux besoins du projet.
+
+# 18. SÉCURITÉ APPLICATIVE
+
+Exigences obligatoires :
+
+- validation des entrées côté serveur ;
+- contrôle d'accès côté serveur pour chaque ressource privée ;
+- séparation stricte des rôles ;
+- protection contre les injections SQL ;
+- protection contre les scripts injectés ;
+- protection contre les requêtes intersites non autorisées ;
+- gestion sécurisée des cookies et sessions ;
+- limitation des tentatives de connexion ;
+- contrôle des téléversements ;
+- secrets absents du code source ;
+- absence de mots de passe en clair ;
+- gestion sécurisée des erreurs ;
+- en-têtes de sécurité adaptés ;
+- dépendances maintenues ;
+- journalisation sans secrets ;
+- prévention de l'accès direct aux dossiers d'autres participantes ;
+- tests des permissions sur les API.
+
+Ne jamais se contenter de masquer un bouton dans l'interface pour protéger une fonctionnalité.
+
+Toutes les autorisations doivent être contrôlées sur le serveur.
+
+Ne pas renvoyer des dossiers complets au navigateur si seule une partie des données est nécessaire.
+
+Ne pas utiliser un simple identifiant numérique ou un UUID comme unique mécanisme d'autorisation d'accès privé.
+
+# 19. PERFORMANCE ET ACCESSIBILITÉ
+
+La plateforme doit :
+
+- fonctionner sur les navigateurs modernes ;
+- rester utilisable sur des téléphones Android modestes ;
+- limiter le poids des images ;
+- utiliser des formats d'image adaptés ;
+- charger les médias progressivement lorsque pertinent ;
+- limiter les requêtes inutiles ;
+- éviter les dépendances lourdes sans justification ;
+- fournir des messages accessibles aux lecteurs d'écran ;
+- permettre la navigation au clavier ;
+- assurer un contraste lisible ;
+- utiliser des libellés explicites pour les formulaires ;
+- respecter autant que possible les recommandations WCAG 2.2 niveau AA.
+
+Objectif indicatif : obtenir des résultats Lighthouse satisfaisants sur les pages publiques, sans sacrifier les protections de sécurité ou la qualité du contenu.
+
+# 20. SEO ET VISIBILITÉ
+
+Prévoir :
+
+- métadonnées uniques ;
+- titres et descriptions pertinents ;
+- URLs lisibles ;
+- plan de site XML ;
+- fichier robots.txt ;
+- pages publiques indexables ;
+- pages privées exclues de l'indexation ;
+- images optimisées ;
+- liens internes entre profils et catégories ;
+- données structurées uniquement lorsqu'elles correspondent réellement au contenu ;
+- pages d'erreur correctes ;
+- gestion des profils dépubliés.
+
+Le SEO ne doit jamais entraîner l'exposition d'informations privées.
+
+# 21. NOTIFICATIONS
+
+## MVP
+
+Prévoir au minimum des confirmations à l'écran et des notifications administratives accessibles depuis le tableau de bord.
+
+Événements :
+
+- nouveau dossier soumis ;
+- demande de clarification ;
+- complément reçu ;
+- proposition publique créée ;
+- témoignage à modérer ;
+- demande de retrait reçue ;
+- invitation arrivant à expiration, si utile.
+
+L'envoi automatique d'e-mails peut être ajouté si un service d'envoi est correctement configuré.
+
+Ne pas afficher de message affirmant qu'un e-mail a été envoyé si l'envoi n'a pas été confirmé par le service concerné.
+
+Pour la première version, la transmission manuelle des invitations par WhatsApp ou e-mail est acceptable.
+
+# 22. MODÈLE DE DONNÉES
+
+L'agent doit proposer un schéma relationnel documenté et des migrations versionnées.
+
+Entités principales recommandées :
+
+**AdminUser**
+- identifiant ;
+- nom d'affichage ;
+- e-mail ;
+- identifiant d'authentification ou mot de passe haché, selon la solution ;
+- rôle ;
+- état du compte ;
+- dates de création et de mise à jour.
+
+**PersonRecord**
+- identifiant ;
+- statut ;
+- nom privé de gestion ;
+- nom public ;
+- informations de parcours ;
+- informations de contact privées ;
+- paramètres de publication ;
+- dates de création, de soumission et de mise à jour.
+
+**Invitation**
+- identifiant ;
+- dossier associé ;
+- empreinte du jeton ;
+- date de création ;
+- date d'expiration ;
+- date de révocation ;
+- état ;
+- administrateur créateur.
+
+**Initiative**
+- identifiant ;
+- dossier associé ;
+- titre ;
+- description ;
+- période ;
+- résultats ;
+- preuves associées ;
+- statut de validation.
+
+**Category**
+- identifiant ;
+- nom ;
+- description ;
+- état ;
+- ordre d'affichage.
+
+**ProfilePublication**
+- dossier associé ;
+- slug public ;
+- champs approuvés ;
+- état de publication ;
+- dates de publication et de dépublication.
+
+**MediaAsset**
+- identifiant ;
+- dossier associé ;
+- type ;
+- chemin interne ;
+- niveau de confidentialité ;
+- statut de validation ;
+- métadonnées nécessaires.
+
+**ConsentRecord**
+- dossier associé ;
+- type de consentement ;
+- version du texte accepté ;
+- date ;
+- méthode de collecte ;
+- informations nécessaires pour démontrer l'accord.
+
+**Testimonial**
+- profil associé ;
+- texte ;
+- nom public ou pseudonyme ;
+- données privées nécessaires à la modération, le cas échéant ;
+- statut ;
+- décision et dates.
+
+**Rating**
+- profil associé ;
+- valeur ;
+- mécanisme anti-abus ;
+- dates ;
+- statut de modération si nécessaire.
+
+**Nomination**
+- personne proposée ;
+- description ;
+- sources ;
+- coordonnées privées facultatives du proposant ;
+- statut ;
+- décision administrative.
+
+**Badge**
+- nom ;
+- description ;
+- critères ;
+- icône ;
+- état.
+
+**BadgeAssignment**
+- badge ;
+- profil ;
+- administrateur ;
+- justification ;
+- dates.
+
+**AuditLog**
+- acteur ;
+- action ;
+- cible ;
+- résultat ;
+- date ;
+- métadonnées minimales et non sensibles.
+
+**RightsRequest**
+- type de demande ;
+- personne concernée ;
+- statut ;
+- date de réception ;
+- décision ;
+- date de clôture.
+
+Les champs définitifs, contraintes, index, relations et règles de suppression doivent être précisés dans le schéma technique. Les données privées doivent être séparées logiquement des données destinées au public.
+
+# 23. PAGES ET ROUTES À PRÉVOIR
+
+Les chemins exacts pourront être adaptés à la stack choisie, mais les espaces suivants doivent exister.
+
+## Site public
+
+- `/`
+- `/a-propos`
+- `/annuaire`
+- `/profils/[slug]`
+- `/categories/[slug]`
+- `/proposer-une-personne`
+- `/temoignages/[profil]`, si une page distincte est utile
+- `/contact`
+- `/confidentialite`
+- `/conditions`
+- `/moderation`
+- `/demande-de-retrait`
+
+## Formulaire privé
+
+- `/invitation/[jeton]`
+
+Le jeton doit être validé côté serveur. Il ne doit jamais être remplacé par un simple identifiant de dossier.
+
+## Administration
+
+- `/admin/connexion`
+- `/admin`
+- `/admin/dossiers`
+- `/admin/dossiers/[id]`
+- `/admin/invitations`
+- `/admin/profils`
+- `/admin/temoignages`
+- `/admin/propositions`
+- `/admin/badges`
+- `/admin/categories`
+- `/admin/utilisateurs`
+- `/admin/demandes`
+- `/admin/journal`
+- `/admin/parametres`
+
+L'agent peut adapter les routes à la structure du framework, mais doit préserver toutes les fonctions et protections décrites.
+
+# 24. PÉRIMÈTRE DU MVP
+
+La première version doit rester maîtrisable et opérationnelle.
+
+## Fonctionnalités obligatoires au lancement
+
+- site public responsive ;
+- page d'accueil ;
+- annuaire avec recherche et filtres ;
+- profils publics ;
+- espace d'administration sécurisé ;
+- rôles et permissions ;
+- création et gestion des dossiers ;
+- invitations privées sécurisées ;
+- formulaire multi-étapes ;
+- sauvegarde et reprise du formulaire ;
+- gestion des médias ;
+- examen, clarification et publication ;
+- dépublication et archivage ;
+- propositions publiques ;
+- témoignages avec modération ;
+- catégories ;
+- badges manuels ;
+- journal d'audit des actions sensibles ;
+- pages de confidentialité et de contact ;
+- SEO de base ;
+- sauvegardes et procédure de restauration ;
+- tests de sécurité et de fonctionnement.
+
+## Fonctionnalités reportées
+
+- classement public ;
+- notation publique, sauf justification validée ;
+- badges automatiques ;
+- application mobile native ;
+- messagerie entre membres ;
+- espace communautaire ;
+- notifications WhatsApp automatisées ;
+- campagnes e-mail avancées ;
+- algorithme de recommandation ;
+- statistiques avancées ;
+- système de candidature publique complexe ;
+- paiements ou adhésions.
+
+Ces fonctions ne doivent pas être développées pendant le MVP sans décision explicite.
+
+# 25. PLAN DE DÉVELOPPEMENT
+
+## Phase 1 — Audit et préparation
+
+- inspecter le VPS ;
+- confirmer les ressources disponibles ;
+- identifier les applications existantes ;
+- choisir la base de données ;
+- confirmer la stack et ses versions ;
+- définir les domaines et variables d'environnement ;
+- documenter les risques ;
+- valider le modèle de données.
+
+**Livrable :** rapport d'audit et architecture validée.
+
+Aucune modification destructive du VPS pendant cette phase.
+
+## Phase 2 — Socle technique
+
+- initialisation du projet ;
+- configuration des environnements ;
+- base de données et migrations ;
+- composants UI ;
+- authentification ;
+- rôles et permissions ;
+- journal d'audit ;
+- gestion des erreurs.
+
+**Livrable :** application exécutable avec administration protégée.
+
+## Phase 3 — Dossiers et invitations
+
+- création des dossiers ;
+- génération des invitations ;
+- expiration et révocation ;
+- formulaire multi-étapes ;
+- sauvegarde automatique ;
+- téléversement sécurisé ;
+- consentements ;
+- soumission.
+
+**Livrable :** parcours complet entre la création d'un dossier et sa soumission.
+
+## Phase 4 — Modération et publication
+
+- écran d'examen ;
+- demandes de clarification ;
+- approbation et refus ;
+- définition des champs publics ;
+- publication ;
+- dépublication ;
+- archivage ;
+- demandes de retrait.
+
+**Livrable :** cycle éditorial fonctionnel.
+
+## Phase 5 — Site public
+
+- accueil ;
+- annuaire ;
+- filtres ;
+- profils ;
+- partage ;
+- SEO ;
+- pages institutionnelles.
+
+**Livrable :** site public alimenté par les données validées.
+
+## Phase 6 — Contributions publiques
+
+- propositions ;
+- détection de doublons ;
+- témoignages ;
+- modération ;
+- catégories ;
+- badges manuels.
+
+**Livrable :** mécanismes de contribution et de reconnaissance.
+
+## Phase 7 — Sécurité et recette
+
+- tests de permissions ;
+- tests des invitations ;
+- tests de confidentialité ;
+- tests de téléversement ;
+- tests de performance ;
+- tests de sauvegarde et restauration ;
+- contrôle des journaux ;
+- vérification des pages publiques ;
+- correction des anomalies.
+
+**Livrable :** rapport de recette et liste des anomalies corrigées ou restantes.
+
+## Phase 8 — Mise en production
+
+- déploiement contrôlé ;
+- configuration HTTPS ;
+- configuration des sauvegardes ;
+- vérification DNS ;
+- vérification des formulaires ;
+- test du parcours complet ;
+- documentation d'exploitation ;
+- procédure de retour arrière.
+
+**Livrable :** application opérationnelle, documentée et vérifiée.
+
+# 26. TESTS ET CRITÈRES D'ACCEPTATION
+
+Le projet ne sera considéré comme terminé que lorsque les tests suivants seront réussis.
+
+## 26.1. Accès et permissions
+
+- Un visiteur ne peut pas accéder à l'administration.
+- Un modérateur ne peut pas modifier les comptes administratifs s'il n'en a pas la permission.
+- Un lien d'invitation ne donne accès qu'au dossier concerné.
+- Un lien expiré ou révoqué est refusé.
+- Un utilisateur ne peut pas obtenir les données privées en modifiant un identifiant dans l'URL.
+- Les API appliquent les mêmes permissions que l'interface.
+
+## 26.2. Formulaire
+
+- Les données sont sauvegardées correctement.
+- Une participante peut reprendre son formulaire après interruption.
+- Une erreur de validation indique le champ concerné.
+- Une double soumission ne crée pas plusieurs dossiers.
+- Les médias privés ne sont pas publiés automatiquement.
+- Les consentements sont enregistrés avec leur version et leur date.
+- La soumission déclenche le bon statut.
+
+## 26.3. Publication
+
+- Un dossier non approuvé ne peut pas être publié.
+- Un profil public ne contient que des informations autorisées.
+- La dépublication retire le profil de l'annuaire.
+- Les pages privées ne sont pas indexées.
+- Les modifications éditoriales sont correctement enregistrées.
+
+## 26.4. Modération
+
+- Un témoignage en attente n'est pas public.
+- Une proposition n'est pas publiée automatiquement.
+- Les décisions sont journalisées.
+- Les contenus signalés peuvent être traités par les rôles autorisés.
+
+## 26.5. Données
+
+- Les relations entre dossiers, invitations, médias et initiatives sont cohérentes.
+- Les migrations sont exécutables.
+- Les sauvegardes peuvent être restaurées.
+- Les erreurs techniques n'exposent pas les secrets.
+- Les statistiques correspondent aux données réelles.
+
+## 26.6. Interface
+
+- Le site fonctionne sur mobile et ordinateur.
+- Les formulaires restent utilisables sur une connexion lente.
+- Les boutons ont une action réelle.
+- Les messages de succès et d'erreur sont explicites.
+- Les états de chargement et les états vides sont traités.
+- Les principales pages ne présentent pas d'erreur bloquante.
+
+## 26.7. Sécurité avant lancement
+
+- Aucun secret de production n'est versionné dans Git.
+- Aucun compte administrateur par défaut n'est conservé.
+- Les permissions ont été testées.
+- Les téléversements sont contrôlés.
+- Les dépendances ont été vérifiées.
+- HTTPS fonctionne.
+- La restauration d'une sauvegarde a été testée.
+- Aucun défaut critique connu ne reste ouvert.
+
+# 27. DOCUMENTATION À LIVRER
+
+L'agent doit fournir :
+
+1. le code source complet ;
+2. la structure des dossiers ;
+3. le schéma de la base de données ;
+4. les migrations ;
+5. un fichier `.env.example` sans secret réel ;
+6. les instructions d'installation ;
+7. les instructions de lancement local ;
+8. les instructions de déploiement ;
+9. la procédure de mise à jour ;
+10. la procédure de sauvegarde ;
+11. la procédure de restauration ;
+12. la procédure de création du premier administrateur ;
+13. la liste des rôles et permissions ;
+14. la liste des routes publiques et privées ;
+15. les résultats des tests ;
+16. les limites connues ;
+17. les dépendances externes et leurs coûts éventuels ;
+18. la procédure de retour à une version précédente.
+
+Les identifiants, mots de passe, clés API et jetons de production ne doivent pas figurer dans cette documentation.
+
+# 28. RÈGLES DE TRAVAIL POUR L'AGENT IA Z.AI
+
+L'agent doit respecter les consignes suivantes pendant tout le développement.
+
+## Avant de coder
+
+- Lire et analyser l'intégralité du cahier des charges.
+- Identifier les exigences obligatoires et celles reportées.
+- Examiner le dépôt existant si le projet a déjà commencé.
+- Inspecter le VPS uniquement avec des opérations non destructives.
+- Ne pas supposer que le VPS est vide.
+- Signaler les décisions techniques qui nécessitent une validation.
+- Ne pas remplacer une fonctionnalité existante sans vérifier son impact.
+
+## Pendant le développement
+
+- Développer par phases validables.
+- Utiliser TypeScript strict lorsque la stack le permet.
+- Centraliser la validation des données.
+- Appliquer les permissions côté serveur.
+- Éviter les duplications inutiles.
+- Prévoir les états de chargement, les erreurs et les cas limites.
+- Ne pas inventer de données en production.
+- Ne pas coder de boutons sans comportement.
+- Ne pas utiliser de fausses données pour faire croire qu'une fonctionnalité est terminée.
+- Ne pas laisser de routes privées accessibles sans authentification.
+- Ne pas exposer de secrets ou de données privées dans les réponses API.
+- Ne pas modifier le VPS ou supprimer des données sans plan et autorisation explicites.
+
+## Après chaque phase
+
+Fournir un rapport avec :
+
+- fonctionnalités réalisées ;
+- fichiers et modules modifiés ;
+- migrations créées ;
+- tests exécutés ;
+- résultats réels ;
+- anomalies restantes ;
+- risques identifiés ;
+- étapes nécessaires pour poursuivre.
+
+Ne pas annoncer qu'un test a réussi s'il n'a pas été exécuté.
+
+Ne pas déclarer le déploiement terminé sans vérification réelle de l'application.
+
+## Gestion des limites
+
+Si une fonctionnalité ne peut pas être implémentée immédiatement, expliquer :
+
+- la raison ;
+- le risque ;
+- la solution de remplacement ;
+- les conséquences ;
+- la décision qui doit être prise.
+
+Ne pas supprimer silencieusement une exigence du cahier des charges.
+
+# 29. DÉCISIONS À CONFIRMER AVANT LA MISE EN PRODUCTION
+
+Les éléments suivants doivent être définis avant le lancement public :
+
+- nom définitif de la plateforme ;
+- domaine ;
+- nom et coordonnées publiques de l'organisation responsable ;
+- pays et cadre juridique applicables ;
+- catégories définitives ;
+- critères éditoriaux de sélection ;
+- âge minimal et procédure de consentement ;
+- durée de conservation des dossiers ;
+- procédure de correction et de retrait ;
+- personnes autorisées à publier ;
+- choix final de la base de données ;
+- capacités réelles du VPS ;
+- solution de sauvegarde hors serveur ;
+- canal de contact public ;
+- éventuel fournisseur d'e-mails ;
+- activation ou non des notes publiques ;
+- activation ou non des témoignages dès le lancement ;
+- politique de mise en avant des profils.
+
+L'absence d'une décision ne doit pas conduire l'agent à inventer une règle juridique, une identité institutionnelle ou une promesse publique. Il doit utiliser une configuration explicite, demander validation ou désactiver la fonction concernée jusqu'à décision.
+
+# 30. DÉFINITION FINALE DU SUCCÈS
+
+La plateforme sera considérée comme prête pour son lancement lorsque :
+
+- un administrateur peut créer un dossier et générer une invitation sécurisée ;
+- une participante peut compléter son parcours sans compte, enregistrer sa progression et soumettre son dossier ;
+- l'administration peut examiner, clarifier, approuver ou refuser ce dossier ;
+- seuls les contenus validés et autorisés deviennent publics ;
+- le public peut rechercher et consulter les profils publiés ;
+- les témoignages et propositions sont soumis à une modération ;
+- les données privées sont protégées ;
+- les demandes de correction et de retrait peuvent être traitées ;
+- les fonctions principales sont testées ;
+- le site est accessible en HTTPS ;
+- les sauvegardes sont vérifiées ;
+- le code, le déploiement et la maintenance sont documentés ;
+- aucune vulnérabilité critique connue ne subsiste.
+
+**Instruction finale :** construire une plateforme réellement fonctionnelle, fiable, maintenable et adaptée aux ressources disponibles. La priorité est la qualité des parcours, la protection des personnes et la sécurité des données. Les fonctions secondaires ne doivent pas compromettre le lancement du socle essentiel.
