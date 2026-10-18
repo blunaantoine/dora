@@ -1,8 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Schéma de données — Plateforme de valorisation des femmes et des filles engagées
+//
+// Contraintes SQLite (décisions D1/D3/D4 du worklog) :
+//   - pas d'enums Prisma : les statuts sont des String dont les valeurs autorisées
+//     sont décrites dans src/lib/constants.ts ;
+//   - pas de tableaux : les valeurs multiples sont stockées en JSON sérialisé (String) ;
+//   - les dates optionnelles sont des DateTime?.
+// Les données privées sont isolées logiquement du public (PersonPrivateData,
+// ProfilePublication.approvedFields, MediaAsset.visibility).
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +17,429 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// ---------------------------------------------------------------------------
+// Administration
+// ---------------------------------------------------------------------------
+
+model AdminUser {
+  id            String    @id @default(cuid())
+  displayName   String
+  email         String    @unique
+  passwordHash  String
+  role          String    @default("MODERATOR") // ADMIN | MODERATOR | EDITOR
+  isActive      Boolean   @default(true)
+  tokenVersion  Int       @default(0) // incrémentée pour révoquer toutes les sessions JWT
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  auditLogs               AuditLog[]
+  badgeAssignments        BadgeAssignment[]
+  createdInvitations      Invitation[]
+  moderationDecisions     Testimonial[]
+  rightsDecisions         RightsRequest[]
+  nominationsHandled      Nomination[]
+  clarificationsRequested ClarificationRequest[]
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+// ---------------------------------------------------------------------------
+// Dossier lauréate
+// ---------------------------------------------------------------------------
+
+model PersonRecord {
+  id           String  @id @default(cuid())
+  status       String  @default("DRAFT") // machine à états : voir DOSSIER_STATUSES
+  // Identité
+  managementName String // nom privé de gestion (interne)
+  publicName   String?
+  shortPresentation String?
+  biography    String?
+  birthYear    Int?
+  isMinor      Boolean @default(false)
+  // Localisation
+  country      String?
+  region       String?
+  city         String?
+  languages    String?
+  // Catégorie d'engagement (une catégorie désactivée ne masque ni n'efface les personnes)
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  // Photo principale
+  photoAssetId String?
+  photoAsset   MediaAsset? @relation("principalPhoto", fields: [photoAssetId], references: [id], onDelete: SetNull)
+
+  // Récit personnel
+  storyJourney            String?
+  engagementMotivation    String?
+  keyEvent                String?
+  difficultiesEncountered String?
+  lessonsLearned          String?
+  inspirationSource       String?
+
+  // Parcours scolaire et professionnel
+  education              String?
+  professionalExperience String?
+  responsibilities       String?
+  organizations          String?
+  skills                 String?
+  distinctions           String?
+
+  // Vision et projets futurs
+  visionCommunity  String?
+  futureGoals      String?
+  projectsToDevelop String?
+  supportNeeded    String?
+  messageToYouth   String?
+
+  submittedAt DateTime?
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  privateData    PersonPrivateData?
+  invitations    Invitation[]
+  initiatives    Initiative[]
+  media          MediaAsset[]       @relation("PersonMedia")
+  consents       ConsentRecord[]
+  publication    ProfilePublication?
+  ratings        Rating[]
+  testimonials   Testimonial[]
+  badges         BadgeAssignment[]
+  rightsRequests RightsRequest[]
+  clarifications ClarificationRequest[]
+  duplicateNominations Nomination[] @relation("duplicateOf")
+
+  @@index([status])
+}
+
+// Données privées strictement séparées de la publication (minimisation volontaire :
+// pas de champ adresse postale).
+model PersonPrivateData {
+  id               String  @id @default(cuid())
+  personId         String  @unique
+  person           PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  legalName        String?
+  phone            String?
+  email            String?
+  contactPreference String?
+  guardianName     String?
+  guardianContact  String?
+  guardianConsentAt DateTime?
+  internalNotes    String?
+}
+
+// ---------------------------------------------------------------------------
+// Invitation privée (§6) — le jeton brut n'est JAMAIS stocké, seule son
+// empreinte SHA-256 l'est (tokenHash).
+// ---------------------------------------------------------------------------
+
+model Invitation {
+  id          String   @id @default(cuid())
+  personId    String
+  person      PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tokenHash   String   @unique
+  status      String   @default("ACTIVE") // ACTIVE | USED | REVOKED | EXPIRED
+  channel     String? // WHATSAPP | EMAIL | OTHER
+  expiresAt   DateTime
+  usedAt      DateTime?
+  revokedAt   DateTime?
+  revokedById String?
+  createdById String
+  createdBy   AdminUser @relation(fields: [createdById], references: [id])
+  accessCount Int      @default(0)
+  lastAccessAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([status, expiresAt])
+}
+
+// ---------------------------------------------------------------------------
+// Initiatives (étape 5 du formulaire)
+// ---------------------------------------------------------------------------
+
+model Initiative {
+  id           String @id @default(cuid())
+  personId     String
+  person       PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  sortOrder    Int    @default(0)
+  title        String
+  description  String?
+  periodLabel  String?
+  actionArea   String?
+  beneficiaries String?
+  rolePlayed   String?
+  partners     String?
+  objectives   String?
+  results      String?
+  resultsType  String? // OBSERVED | ESTIMATED | GOAL
+  evidence     String?
+  difficulties String?
+  learnings    String?
+  projectState String? // PLANNED | ONGOING | COMPLETED
+
+  media MediaAsset[]
+}
+
+// ---------------------------------------------------------------------------
+// Catégories d'engagement (§4.3)
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  nominations Nomination[]
+  persons     PersonRecord[]
+}
+
+// ---------------------------------------------------------------------------
+// État de publication (distinct du statut du dossier — décisions D3/D4)
+// ---------------------------------------------------------------------------
+
+model ProfilePublication {
+  id            String  @id @default(cuid())
+  personId      String  @unique
+  person        PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  slug          String  @unique
+  state         String  @default("UNPUBLISHED") // UNPUBLISHED | PUBLISHED
+  approvedFields String @default("[]") // JSON array des noms de champs autorisés à la publication
+  featured      Boolean @default(false)
+  seoTitle      String?
+  seoDescription String?
+  publishedAt   DateTime?
+  unpublishedAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Médias (§7.8) — fichier stocké hors base (storagePath), métadonnées ici.
+// ---------------------------------------------------------------------------
+
+model MediaAsset {
+  id           String  @id @default(cuid())
+  personId     String?
+  person       PersonRecord? @relation("PersonMedia", fields: [personId], references: [id], onDelete: Cascade)
+  initiativeId String?
+  initiative   Initiative? @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  kind         String // PROFILE_PHOTO | ACTIVITY_PHOTO | POSTER | DOCUMENT | OTHER
+  visibility   String  @default("PRIVATE") // PUBLIC | PRIVATE
+  status       String  @default("PENDING") // PENDING | VALIDATED | REJECTED
+  storagePath  String
+  originalName String?
+  mimeType     String
+  sizeBytes    Int
+  width        Int?
+  height       Int?
+  uploadedAt   DateTime @default(now())
+  validatedAt  DateTime?
+  validatedById String?
+
+  principalFor PersonRecord[] @relation("principalPhoto")
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Consentements (§7.2, §15)
+// ---------------------------------------------------------------------------
+
+model ConsentText {
+  id       String  @id @default(cuid())
+  code     String // PRIVACY_POLICY | PUBLICATION_CONSENT | IMAGE_CONSENT | MINOR_GUARDIAN_CONSENT | TESTIMONIAL_RULES
+  version  Int
+  title    String
+  body     String
+  isActive Boolean @default(true)
   createdAt DateTime @default(now())
+
+  records ConsentRecord[]
+
+  @@unique([code, version])
+}
+
+model ConsentRecord {
+  id            String   @id @default(cuid())
+  personId      String
+  person        PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  consentTextId String
+  consentText   ConsentText  @relation(fields: [consentTextId], references: [id], onDelete: Restrict)
+  acceptedAt    DateTime @default(now())
+  method        String   @default("FORM")
+  demonstration String?
+}
+
+// ---------------------------------------------------------------------------
+// Témoignages (§9)
+// ---------------------------------------------------------------------------
+
+model Testimonial {
+  id                String  @id @default(cuid())
+  personId          String
+  person            PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  authorDisplayName String
+  authorContact     String? // privé, jamais publié
+  relation          String?
+  content           String
+  status            String  @default("PENDING") // PENDING | IN_REVIEW | APPROVED | REJECTED | REPORTED | ARCHIVED
+  moderatorNote     String?
+  decidedById       String?
+  decidedBy         AdminUser?  @relation(fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt         DateTime?
+  ipHash            String?
+  createdAt         DateTime @default(now())
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Notes (§10) — fonctionnalité DÉSACTIVÉE au lancement (décision D2),
+// schéma prêt pour activation ultérieure.
+// ---------------------------------------------------------------------------
+
+model Rating {
+  id                 String   @id @default(cuid())
+  personId           String
+  person             PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  visitorFingerprint String
+  stars              Int
+  createdAt          DateTime @default(now())
+
+  @@unique([personId, visitorFingerprint])
+}
+
+// ---------------------------------------------------------------------------
+// Propositions publiques (§11)
+// ---------------------------------------------------------------------------
+
+model Nomination {
+  id                 String  @id @default(cuid())
+  nomineePublicName  String
+  categoryId         String?
+  category           Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  presentation       String
+  reason             String
+  sourceUrl          String?
+  proposerName       String?
+  proposerContact    String? // privé
+  goodFaith          Boolean @default(false)
+  status             String  @default("NEW") // NEW | TO_REVIEW | POTENTIAL_DUPLICATE | TO_VERIFY | ACCEPTED_FOR_CONTACT | REJECTED | ARCHIVED
+  duplicateOfPersonId String?
+  duplicateOf        PersonRecord? @relation("duplicateOf", fields: [duplicateOfPersonId], references: [id], onDelete: SetNull)
+  adminNotes         String?
+  handledById        String?
+  handledBy          AdminUser? @relation(fields: [handledById], references: [id], onDelete: SetNull)
+  decidedAt          DateTime?
+  invitationId       String?
+  createdAt          DateTime @default(now())
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Badges et reconnaissances (§12)
+// ---------------------------------------------------------------------------
+
+model Badge {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  criteria    String
+  icon        String?
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignments BadgeAssignment[]
+}
+
+model BadgeAssignment {
+  id                   String    @id @default(cuid())
+  badgeId              String
+  badge                Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  personId             String
+  person               PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  awardedById          String
+  awardedBy            AdminUser @relation(fields: [awardedById], references: [id])
+  justification        String
+  awardedAt            DateTime  @default(now())
+  removedAt            DateTime?
+  removalJustification String?
+}
+
+// ---------------------------------------------------------------------------
+// Journal d'audit (§5.6) — aucune donnée sensible (voir sanitizeMetadata)
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id         String  @id @default(cuid())
+  actorId    String?
+  actor      AdminUser? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actorLabel String?
+  action     String // voir AUDIT_ACTIONS
+  entityType String
+  entityId   String?
+  result     String  @default("SUCCESS") // SUCCESS | DENIED | ERROR
+  metadata   String? // JSON non sensible
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
+
+// ---------------------------------------------------------------------------
+// Droits des personnes (§15.3)
+// ---------------------------------------------------------------------------
+
+model RightsRequest {
+  id              String  @id @default(cuid())
+  type            String // ACCESS | CORRECTION | UNPUBLISH | ERASE | CONSENT_WITHDRAWAL | REPORT_ERROR
+  personId        String?
+  person          PersonRecord? @relation(fields: [personId], references: [id], onDelete: SetNull)
+  requesterName   String?
+  requesterContact String?
+  description     String
+  status          String  @default("RECEIVED") // RECEIVED | IN_PROGRESS | DECIDED | CLOSED
+  decision        String?
+  decidedById     String?
+  decidedBy       AdminUser? @relation(fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt       DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([status])
+}
+
+// Demandes de clarification (§8.2) — questions adressées à la participante
+model ClarificationRequest {
+  id             String   @id @default(cuid())
+  personId       String
+  person         PersonRecord @relation(fields: [personId], references: [id], onDelete: Cascade)
+  askedById      String?
+  askedBy        AdminUser? @relation(fields: [askedById], references: [id], onDelete: SetNull)
+  fieldsConcerned String  @default("[]") // JSON array de noms de champs
+  questions      String
+  message        String
+  dueDateHint    String?
+  status         String   @default("PENDING") // PENDING | ANSWERED | CANCELLED
+  createdAt      DateTime @default(now())
+  answeredAt     DateTime?
+}
+
+// ---------------------------------------------------------------------------
+// Paramètres applicatifs (clé/valeur, valeur en JSON string)
+// ---------------------------------------------------------------------------
+
+model Setting {
+  key       String   @id
+  value     String
   updatedAt DateTime @updatedAt
 }

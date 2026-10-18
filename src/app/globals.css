@@ -3,11 +3,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+   Identité visuelle (cahier des charges §16.1) — mode clair :
+   - vert profond  #173D32  → primaire (actions, structure, sidebar)  [--pine]
+   - ivoire        #F8F5EF  → fond général                            [--background]
+   - or doux       #D6B15E  → accents & reconnaissance UNIQUEMENT      [--gold]
+     (jamais utilisé pour du texte courant sur fond clair — contraste AA)
+   - anthracite    #202522  → texte                                    [--foreground]
+   Aucun bleu ni indigo. Typographie éditoriale : Fraunces (titres) + Geist.
+--------------------------------------------------------------------------- */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -37,6 +48,11 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-pine: var(--pine);
+  --color-pine-soft: var(--pine-soft);
+  --color-pine-deep: var(--pine-deep);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -45,71 +61,82 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Couleurs de marque (§16.1) */
+  --pine: #173d32;
+  --pine-soft: #22503f;
+  --pine-deep: #0f2a21;
+  --gold: #d6b15e;
+  --gold-soft: #ead9ac;
+
+  /* Tokens shadcn — mode clair */
+  --background: #f8f5ef;
+  --foreground: #202522;
+  --card: #ffffff;
+  --card-foreground: #202522;
+  --popover: #ffffff;
+  --popover-foreground: #202522;
+  --primary: #173d32;
+  --primary-foreground: #f8f5ef;
+  --secondary: #e8ede5;
+  --secondary-foreground: #173d32;
+  --muted: #efece2;
+  --muted-foreground: #57605a;
+  --accent: #eaf0e6;
+  --accent-foreground: #173d32;
+  --destructive: #a63a2a;
+  --border: #e4dfd1;
+  --input: #d9d4c5;
+  --ring: #2f5c49;
+  --chart-1: #173d32;
+  --chart-2: #2f5c49;
+  --chart-3: #d6b15e;
+  --chart-4: #7a8b7f;
+  --chart-5: #b28a3c;
+  --sidebar: #173d32;
+  --sidebar-foreground: #ecf1e9;
+  --sidebar-primary: #d6b15e;
+  --sidebar-primary-foreground: #173d32;
+  --sidebar-accent: #22503f;
+  --sidebar-accent-foreground: #f8f5ef;
+  --sidebar-border: #2a5343;
+  --sidebar-ring: #d6b15e;
 }
 
+/* Mode sombre : non proposé à l'utilisateur (aucun sélecteur de thème) ;
+   valeurs conservées et alignées sur la marque si jamais activé. */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #14201b;
+  --foreground: #f0ede4;
+  --card: #1a2922;
+  --card-foreground: #f0ede4;
+  --popover: #1a2922;
+  --popover-foreground: #f0ede4;
+  --primary: #9ec3ae;
+  --primary-foreground: #10241c;
+  --secondary: #24382e;
+  --secondary-foreground: #ecf1e9;
+  --muted: #22352b;
+  --muted-foreground: #a3b0a6;
+  --accent: #24483a;
+  --accent-foreground: #f0ede4;
+  --destructive: #d26a58;
+  --border: #2c4034;
+  --input: #31473a;
+  --ring: #9ec3ae;
+  --chart-1: #9ec3ae;
+  --chart-2: #d6b15e;
+  --chart-3: #2f5c49;
+  --chart-4: #a3b0a6;
+  --chart-5: #b28a3c;
+  --sidebar: #0f2a21;
+  --sidebar-foreground: #ecf1e9;
+  --sidebar-primary: #d6b15e;
+  --sidebar-primary-foreground: #173d32;
+  --sidebar-accent: #1c3b2f;
+  --sidebar-accent-foreground: #f8f5ef;
+  --sidebar-border: #234435;
+  --sidebar-ring: #d6b15e;
 }
 
 @layer base {
@@ -119,4 +146,38 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Typographie éditoriale : titres en Fraunces (public ET admin, cohérence). */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
+    letter-spacing: -0.01em;
+  }
 }
+
+/* Barres de défilement discrètes (listes longues, tableaux). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cfc9b8 transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cfc9b8;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8b1a0;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* touche de recompilation CSS (2-b) */
