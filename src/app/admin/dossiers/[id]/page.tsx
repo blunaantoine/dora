@@ -22,11 +22,14 @@ import { Separator } from "@/components/ui/separator";
 import { AccessDenied } from "@/components/admin/access-denied";
 import { DossierInvitationPanel } from "@/components/admin/dossier-invitation-panel";
 import { DossierStatusActions } from "@/components/admin/dossier-status-actions";
+import { DossierReviewPanel } from "@/components/admin/dossier-review-panel";
+import { PublicationPanel } from "@/components/admin/publication-panel";
 import { cn } from "@/lib/utils";
 
-// Détail d'un dossier — consultation complète + actions de gestion (phase 3) :
-// transitions de statut (machine à états) et gestion de l'invitation. Les
-// autres modifications de champs arrivent dans une phase ultérieure.
+// Détail d'un dossier — consultation complète + actions de gestion (phase 4) :
+// transitions de statut (machine à états), gestion de l'invitation, examen
+// (démarrage, clarification, approbation, refus §8.1-8.3) et publication
+// (pré-requis, champs approuvés, SEO, dépublication §8.4-8.5).
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -47,6 +50,7 @@ export default async function DossierDetailPage({
 
   const canManage = hasPermission(role, "MANAGE_DOSSIERS");
   const canReview = hasPermission(role, "REVIEW_DOSSIERS");
+  const canPublish = hasPermission(role, "PUBLISH_PROFILES");
   if (!canManage && !canReview) {
     return <AccessDenied role={role} />;
   }
@@ -229,9 +233,8 @@ export default async function DossierDetailPage({
 
       <p className="mt-4 flex items-start gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
         <Lock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-pine" />
-        Consultation complète ; les transitions de statut et la gestion de l&apos;invitation sont
-        disponibles ci-dessous (toute action est journalisée). La modification fine des champs
-        arrivera dans une phase ultérieure.
+        Consultation complète : examen (précisions, approbation, refus) et publication (champs publics, SEO,
+        dépublication) sont disponibles ci-dessous — toute action est journalisée.
       </p>
 
       {canManage ? (
@@ -266,6 +269,37 @@ export default async function DossierDetailPage({
             />
           </section>
         </div>
+      ) : null}
+
+      {/* Examen (§8.1-8.3) : actions contextuelles selon le statut + demandes de clarification */}
+      {(canManage || canReview) &&
+        (["SUBMITTED", "UNDER_REVIEW", "CLARIFICATION_REQUESTED", "CLARIFICATION_RECEIVED", "APPROVED", "REJECTED"] as string[]).includes(
+          record.status,
+        ) ? (
+        <section aria-label="Examen du dossier" className="mt-6 rounded-xl border border-border bg-card p-5 sm:p-6">
+          <h2 className="font-display text-lg font-semibold text-foreground">Examen du dossier</h2>
+          <Separator className="my-4" />
+          <DossierReviewPanel
+            dossierId={record.id}
+            status={record.status}
+            isMinor={record.isMinor}
+            internalNotes={canManage ? record.privateData?.internalNotes ?? null : null}
+          />
+        </section>
+      ) : null}
+
+      {/* Publication (§8.4-8.5) : réservée à la permission PUBLISH_PROFILES */}
+      {canPublish ? (
+        <section aria-label="Publication du profil" className="mt-6 rounded-xl border border-border bg-card p-5 sm:p-6">
+          <h2 className="font-display text-lg font-semibold text-foreground">Publication</h2>
+          <Separator className="my-4" />
+          <PublicationPanel
+            dossierId={record.id}
+            status={record.status}
+            isMinor={record.isMinor}
+            publicName={record.publicName}
+          />
+        </section>
       ) : null}
 
       <div className="mt-6 grid gap-6">

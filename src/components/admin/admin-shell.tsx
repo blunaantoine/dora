@@ -11,6 +11,7 @@ import {
   Mail,
   Menu,
   ScrollText,
+  Shapes,
   Users,
 } from "lucide-react";
 
@@ -55,12 +56,16 @@ export function AdminShell({
   const canManageAdmins = hasPermission(user.role, "MANAGE_ADMINS");
   const canViewAudit = hasPermission(user.role, "VIEW_AUDIT_LOG");
   const canManageDossiers = hasPermission(user.role, "MANAGE_DOSSIERS");
+  const canManageCategories = hasPermission(user.role, "MANAGE_CATEGORIES");
 
   const navItems: NavItem[] = [
     { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
     { href: "/admin/dossiers", label: "Dossiers", icon: FolderOpen },
     ...(canManageDossiers
       ? [{ href: "/admin/invitations", label: "Invitations", icon: Mail }]
+      : []),
+    ...(canManageCategories
+      ? [{ href: "/admin/categories", label: "Catégories", icon: Shapes }]
       : []),
     ...(canManageAdmins
       ? [{ href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users }]

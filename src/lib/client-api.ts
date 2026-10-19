@@ -80,9 +80,9 @@ export function patchJson<T>(url: string, body: unknown): Promise<ApiResult<T>> 
   return requestJson<T>(url, "PATCH", body);
 }
 
-/** DELETE JSON vers une route interne. */
-export function deleteJson<T>(url: string): Promise<ApiResult<T>> {
-  return requestJson<T>(url, "DELETE");
+/** DELETE JSON vers une route interne (corps optionnel, ex. motif de dépublication). */
+export function deleteJson<T>(url: string, body?: unknown): Promise<ApiResult<T>> {
+  return requestJson<T>(url, "DELETE", body);
 }
 
 /** POST multipart/form-data (téléversement de médias). */
