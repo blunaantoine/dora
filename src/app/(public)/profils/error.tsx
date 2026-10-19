@@ -5,9 +5,9 @@ import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Boundary d'erreur de l'annuaire : message clair + bouton « Réessayer » réel
-// (reset() relance le rendu du segment, donc la requête Prisma).
+// (reset() relance le rendu du segment, donc les requêtes Prisma).
 
-export default function AnnuaireError({
+export default function ProfilsError({
   error,
   reset,
 }: {
@@ -16,7 +16,7 @@ export default function AnnuaireError({
 }) {
   useEffect(() => {
     // Détail complet côté console uniquement (rien de technique à l'écran).
-    console.error("[annuaire] Erreur de chargement des profils :", error);
+    console.error("[profils] Erreur de chargement de l'annuaire :", error);
   }, [error]);
 
   return (
@@ -30,7 +30,7 @@ export default function AnnuaireError({
           L&apos;annuaire n&apos;a pas pu être chargé. Vous pouvez réessayer ; si le problème
           persiste, revenez plus tard.
         </p>
-        <Button onClick={reset} className="mt-6">
+        <Button onClick={reset} className="mt-6 min-h-11">
           <RotateCcw aria-hidden="true" />
           Réessayer
         </Button>

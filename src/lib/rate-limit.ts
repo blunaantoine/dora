@@ -102,6 +102,21 @@ export function adminApiRateLimit(ip: string): RateLimitResult {
   return rateLimit(`admin-api:${ip}`, ADMIN_API_ATTEMPTS, ADMIN_API_WINDOW_MS);
 }
 
+const PUBLIC_SUBMISSION_ATTEMPTS = 5;
+const PUBLIC_SUBMISSION_WINDOW_MS = 60 * 60_000; // 1 heure
+
+/**
+ * Soumissions publiques (§9.3, §11.2) — témoignages et propositions de
+ * personnes : 5 / heure / IP. La clé est hachée (SHA-256) : aucune IP en clair
+ * dans l'état global mémoire. Ce plafond est volontairement STRICT : les
+ * formulaires concernés sont des envois uniques (pas de sauvegarde
+ * automatique), contrairement au brouillon d'invitation.
+ * NB : ce n'est pas une preuve d'identité (§9.3) — un simple signal anti-abus.
+ */
+export function publicSubmissionRateLimit(ip: string): RateLimitResult {
+  return rateLimit(createHashKey(`public-submission:${ip}`), PUBLIC_SUBMISSION_ATTEMPTS, PUBLIC_SUBMISSION_WINDOW_MS);
+}
+
 function createHashKey(raw: string): string {
   return `h:${createHash("sha256").update(raw).digest("hex")}`;
 }

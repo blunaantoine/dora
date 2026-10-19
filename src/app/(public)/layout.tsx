@@ -36,7 +36,7 @@ export default function PublicLayout({
               Accueil
             </Link>
             <Link
-              href="/annuaire"
+              href="/profils"
               className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
             >
               Annuaire
@@ -69,10 +69,42 @@ export default function PublicLayout({
                 </li>
                 <li>
                   <Link
-                    href="/annuaire"
+                    href="/profils"
                     className="rounded-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
                   >
-                    Annuaire
+                    Annuaire des parcours
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/proposer"
+                    className="rounded-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                  >
+                    Proposer une personne
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="rounded-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                  >
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/mentions-legales"
+                    className="rounded-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                  >
+                    Mentions légales
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/confidentialite"
+                    className="rounded-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                  >
+                    Confidentialité
                   </Link>
                 </li>
                 <li>

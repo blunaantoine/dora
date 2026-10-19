@@ -133,6 +133,22 @@ export default async function DossierDetailPage({
           projectState: true,
         },
       },
+      // Médias du dossier (hors supprimés) — liste blanche pour le panneau de
+      // publication (bloc « Photo principale », autorisation visibility).
+      media: {
+        where: { status: { not: "DELETED" } },
+        orderBy: { uploadedAt: "desc" },
+        select: {
+          id: true,
+          kind: true,
+          originalName: true,
+          visibility: true,
+          status: true,
+          sizeBytes: true,
+          width: true,
+          height: true,
+        },
+      },
     },
   });
 
@@ -298,6 +314,7 @@ export default async function DossierDetailPage({
             status={record.status}
             isMinor={record.isMinor}
             publicName={record.publicName}
+            mediaAssets={record.media}
           />
         </section>
       ) : null}

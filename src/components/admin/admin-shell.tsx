@@ -5,13 +5,16 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
+  Award,
   FolderOpen,
   LayoutDashboard,
   LogOut,
   Mail,
   Menu,
+  MessageSquareHeart,
   ScrollText,
   Shapes,
+  UserPlus,
   Users,
 } from "lucide-react";
 
@@ -29,11 +32,21 @@ export interface AdminShellUser {
   role: string;
 }
 
+/** Compteurs de travail (calculés côté serveur, jamais de faux chiffres). */
+export interface AdminShellCounters {
+  /** Témoignages en attente de modération (PENDING). */
+  pendingTestimonials: number;
+  /** Propositions à traiter (NEW + POTENTIAL_DUPLICATE). */
+  openNominations: number;
+}
+
 interface NavItem {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
+  /** Compteur affiché quand > 0 (éléments à traiter). */
+  counter?: number;
 }
 
 // Coquille de l'espace d'administration : rail latéral fixe sur desktop,
@@ -42,10 +55,12 @@ interface NavItem {
 export function AdminShell({
   user,
   siteName,
+  counters,
   children,
 }: {
   user: AdminShellUser;
   siteName: string;
+  counters?: AdminShellCounters;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -57,6 +72,9 @@ export function AdminShell({
   const canViewAudit = hasPermission(user.role, "VIEW_AUDIT_LOG");
   const canManageDossiers = hasPermission(user.role, "MANAGE_DOSSIERS");
   const canManageCategories = hasPermission(user.role, "MANAGE_CATEGORIES");
+  const canModerateTestimonials = hasPermission(user.role, "MODERATE_TESTIMONIALS");
+  const canManageNominations = hasPermission(user.role, "MANAGE_NOMINATIONS");
+  const canManageBadges = hasPermission(user.role, "MANAGE_BADGES");
 
   const navItems: NavItem[] = [
     { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
@@ -67,6 +85,27 @@ export function AdminShell({
     ...(canManageCategories
       ? [{ href: "/admin/categories", label: "Catégories", icon: Shapes }]
       : []),
+    ...(canModerateTestimonials
+      ? [
+          {
+            href: "/admin/temoignages",
+            label: "Témoignages",
+            icon: MessageSquareHeart,
+            counter: counters?.pendingTestimonials ?? 0,
+          },
+        ]
+      : []),
+    ...(canManageNominations
+      ? [
+          {
+            href: "/admin/propositions",
+            label: "Propositions",
+            icon: UserPlus,
+            counter: counters?.openNominations ?? 0,
+          },
+        ]
+      : []),
+    ...(canManageBadges ? [{ href: "/admin/badges", label: "Badges", icon: Award }] : []),
     ...(canManageAdmins
       ? [{ href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users }]
       : []),
@@ -110,7 +149,14 @@ export function AdminShell({
               className={cn("size-4 shrink-0", active ? "text-gold" : "text-sidebar-foreground/60 group-hover:text-sidebar-foreground")}
             />
             {item.label}
-            {active ? <span aria-hidden="true" className="ml-auto size-1.5 rounded-full bg-gold" /> : null}
+            {item.counter && item.counter > 0 ? (
+              <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-semibold leading-none text-pine-deep">
+                {item.counter > 99 ? "99+" : item.counter}
+                <span className="sr-only">à traiter</span>
+              </span>
+            ) : active ? (
+              <span aria-hidden="true" className="ml-auto size-1.5 rounded-full bg-gold" />
+            ) : null}
           </Link>
         );
       })}

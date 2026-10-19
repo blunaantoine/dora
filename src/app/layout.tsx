@@ -25,6 +25,12 @@ const siteName =
   "Plateforme de valorisation des femmes et des filles engagées";
 
 export const metadata: Metadata = {
+  // Base des URL canoniques et Open Graph (§4.5) : NEXTAUTH_URL si défini,
+  // sinon Next.js retombe sur l'URL de déploiement — les URL relatives des
+  // pages publiques (canonical, image OG) sont résolues en absolu.
+  ...(process.env.NEXTAUTH_URL?.trim()
+    ? { metadataBase: new URL(process.env.NEXTAUTH_URL.trim()) }
+    : {}),
   title: {
     default: siteName,
     template: `%s — ${siteName}`,

@@ -197,3 +197,21 @@ Stage Summary (contrat API pour la tâche 4-b) :
 - Routes disponibles pour 4-b : GET /api/admin/dossiers/[id]/publication {dossier{status,publicName,isMinor}, publication|null, prerequisites{statusOk,consentOk,publicNameOk,fieldsOk}, slug, previewUrl} (permission PUBLISH_PROFILES) ; POST/PATCH/DELETE même URL (PUBLISH_PROFILES) ; GET/POST /api/admin/dossiers/[id]/clarifications + PATCH /api/admin/clarifications/[id] {markAnswered:true} (MANAGE_DOSSIERS) ; GET/POST /api/admin/categories + PATCH /api/admin/categories/[id] {name?,description?,isActive?} (MANAGE_CATEGORIES ; DELETE=405). Réponses normalisées {ok:true,data}/{ok:false,error:{code,message,fields?}}.
 - Catégories publiques (annuaire 4-b) : Category {id,name,slug,description,isActive,sortOrder} — filtrer isActive:true pour les filtres ; les dossiers liés à une catégorie désactivée RESTENT visibles (relation SetNull jamais utilisée : categoryId reste rempli). publishedCount par catégorie = PersonRecord.count({categoryId, status:"PUBLISHED"}).
 - État de la base (pour 4-b) : 12 catégories officielles actives (sortOrder 1→12) + 1 catégorie jetable désactivée « Vérification Temporaire 4a (renomée) » ; dossier jetable « Examen Verif » ARCHIVED (publication UNPUBLISHED, slug adjoa-verif, 1 clarification ANSWERED) ; dossiers réutilisables pour l'UI : « Afi Parcours » (SUBMITTED), « Kossiwa Demonstration » (IN_PROGRESS, brouillon riche), « Eya Verification » (IN_PROGRESS, FILLE mineure — NE PAS TOUCHER, réservé).
+---
+Task ID: 4-b
+Agent: full-stack-developer (livraison récupérée après dépassement de délai ; vérification complète par l'orchestrateur)
+Task: Pages publiques — annuaire /profils, fiche /profils/[slug], accueil, pages légales
+
+Work Log:
+- src/lib/public-profile.ts : sérialiseur liste blanche unique (double garde mineures : city/region jamais renvoyés, biographie tronquée 2000 car., bandeau Profil protégé).
+- /profils : Server Component + formulaire GET natif (q, categorie, page — sans JS, 3G), Suspense interne (sémantique 404 préservée sur [slug]), pagination 12/page, états vide/chargement/erreur réels ; catégories actives seulement (§4.3).
+- /profils/[slug] : notFound() si non PUBLISHED ; generateMetadata (title/description/openGraph avec image publique, canonical) ; sections affichées uniquement si champ approuvé ET non vide ; initiatives ; JSON-LD Person minimal sans données privées ; bouton partage (Web Share API + fallback) ; lien signalement/correction.
+- Médias : GET /api/public/media/[id] (visibilité PUBLIC + publication active uniquement — Cache-Control public max-age=3600) ; PATCH /api/admin/media/[id] {visibility} (permission PUBLISH_PROFILES, audit MEDIA_VISIBILITY_CHANGED) + bloc « Photo principale » dans publication-panel.tsx.
+- Accueil : section « Derniers parcours publiés » (3 derniers, cartes réelles) ou phrase honnête si aucun ; /contact, /mentions-legales, /confidentialité statiques sobres + CONTACT_EMAIL dans .env.example ; footer liens réels.
+- Vérifications réelles : 2 participantes de test créées via curl complet (adulte + mineure) puis publiées : annuaire cartes ✓ ; fiche adulte sections conformes aux champs approuvés (champ non approuvé absent) ✓ ; og:title/description/url/image exacts ✓ ; fiche mineure « Profil protégé » sans ville ✓ ; /api/public/media photo publique 200, photos privées 404 ✓ ; dépublication → fiche 404 ✓ ; recherche q + état vide ✓ ; accueil section réelle ✓ ; contact/légales 200 ✓.
+- Nettoyage : les 2 dossiers de test dépubliés (UNPUBLISHING) puis ARCHIVED — annuaire public vide et honnête à la fin (« Aucun profil publié pour le moment — la plateforme prépare son lancement »). Eya/Kossiwa intacts.
+- lint 0 erreur ; tsc propre ; dev.log sans erreur.
+
+Stage Summary:
+- Parcours public complet opérationnel : accueil → annuaire (recherche/filtres/pagination sans JS) → fiche publique SEO/OG → partage → signalement. Médias publics gardés par visibilité + publication active. Modèle restreint mineures effectif (double garde).
+- Contrat : src/lib/public-profile.ts serializePublicCard/serializePublicProfile ; GET /api/public/media/[id] ; PATCH /api/admin/media/[id] ; /profils (searchParams q|categorie|page) ; /profils/[slug].

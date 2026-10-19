@@ -20,8 +20,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ExternalLink, Loader2, ShieldAlert, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, ImageIcon, Loader2, ShieldAlert, XCircle } from "lucide-react";
 
+import { MEDIA_KIND_LABELS, type MediaKind } from "@/lib/constants";
 import { PUBLIC_FIELDS, PUBLIC_FIELD_LABELS, type PublicField } from "@/lib/public-fields";
 import { deleteJson, getJson, patchJson, postJson } from "@/lib/client-api";
 import {
@@ -34,12 +35,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+
+/** Média du dossier (liste blanche — passé par le Server Component de la page détail). */
+export interface DossierMediaAsset {
+  id: string;
+  kind: string;
+  originalName: string | null;
+  visibility: string;
+  status: string;
+  sizeBytes: number;
+  width: number | null;
+  height: number | null;
+}
 
 interface PublicationState {
   dossier: { id: string; status: string; publicName: string | null; isMinor: boolean };
@@ -66,11 +80,13 @@ export function PublicationPanel({
   status,
   isMinor,
   publicName,
+  mediaAssets = [],
 }: {
   dossierId: string;
   status: string;
   isMinor: boolean;
   publicName: string | null;
+  mediaAssets?: DossierMediaAsset[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -86,6 +102,7 @@ export function PublicationPanel({
   const [featured, setFeatured] = useState(false);
   const [unpublishOpen, setUnpublishOpen] = useState(false);
   const [unpublishMotif, setUnpublishMotif] = useState("");
+  const [pendingVisibility, setPendingVisibility] = useState<string | null>(null);
 
   const isPublished = status === "PUBLISHED";
   const isApprovable = status === "APPROVED";
@@ -202,6 +219,34 @@ export function PublicationPanel({
     router.refresh();
   }
 
+  async function handleVisibility(mediaId: string, visibility: "PUBLIC" | "PRIVATE") {
+    if (pendingVisibility) return;
+    setPendingVisibility(mediaId);
+    const result = await patchJson<{ media: { visibility: string } }>(`/api/admin/media/${mediaId}`, {
+      visibility,
+    });
+    setPendingVisibility(null);
+    if (!result.ok) {
+      toast({
+        variant: "destructive",
+        title: visibility === "PUBLIC" ? "Autorisation impossible" : "Retrait impossible",
+        description: result.error.message,
+      });
+      return;
+    }
+    toast({
+      title:
+        visibility === "PUBLIC"
+          ? "Photo autorisée à la publication"
+          : "Photo retirée de la publication",
+      description:
+        visibility === "PUBLIC"
+          ? "Elle ne sera visible publiquement que si le champ « Photo principale » est approuvé et le profil publié. L'action est journalisée."
+          : "Le fichier redevient immédiatement inaccessible depuis l'extérieur. L'action est journalisée.",
+    });
+    router.refresh(); // met à jour la liste passée par le Server Component
+  }
+
   if (!isApprovable && !isPublished) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -299,6 +344,98 @@ export function PublicationPanel({
             );
           })}
         </div>
+      </div>
+
+      {/* — Photo principale : autorisation média par média (§7.8/§8.4) — */}
+      <div className="grid gap-2">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <ImageIcon aria-hidden="true" className="size-4 text-pine" />
+          Photo principale
+        </h3>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Un média téléversé reste toujours privé tant que vous ne l&apos;avez pas autorisé. Il
+          n&apos;apparaîtra sur la fiche publique que si <span className="font-medium">trois
+          conditions</span> sont réunies : visibilité « Publique » ici, champ « Photo principale »
+          approuvé ci-dessus, et profil publié. Le fichier est servi uniquement par une route
+          dédiée qui revalide ces conditions à chaque accès.
+        </p>
+        {mediaAssets.length === 0 ? (
+          <p className="rounded-md border border-dashed border-border bg-muted/40 px-3 py-2.5 text-xs text-muted-foreground">
+            Aucun média téléversé pour ce dossier.
+          </p>
+        ) : (
+          <ul className="grid list-none gap-2 p-0">
+            {mediaAssets.map((media) => {
+              const isPublic = media.visibility === "PUBLIC";
+              return (
+                <li
+                  key={media.id}
+                  className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
+                >
+                  {/* Aperçu via le point d'accès privé (session admin requise, D7). */}
+                  <img
+                    src={`/api/admin/media/${media.id}/file`}
+                    alt=""
+                    width={48}
+                    height={48}
+                    loading="lazy"
+                    className="size-12 shrink-0 rounded-md border border-border object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {media.originalName ?? `Média ${media.id}`}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {MEDIA_KIND_LABELS[media.kind as MediaKind] ?? media.kind}
+                      {media.width && media.height ? ` — ${media.width}×${media.height} px` : ""}
+                      {` — ${(media.sizeBytes / 1024).toFixed(0)} Ko`}
+                    </p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "shrink-0",
+                      isPublic
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                        : "border-stone-200 bg-stone-100 text-stone-700",
+                    )}
+                  >
+                    {isPublic ? "Publique" : "Privée"}
+                  </Badge>
+                  {isPublic ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="min-h-11 shrink-0"
+                      onClick={() => void handleVisibility(media.id, "PRIVATE")}
+                      disabled={pendingVisibility !== null}
+                    >
+                      {pendingVisibility === media.id ? (
+                        <Loader2 aria-hidden="true" className="animate-spin" />
+                      ) : null}
+                      Retirer
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="min-h-11 shrink-0 border-pine text-pine hover:bg-accent hover:text-pine"
+                      onClick={() => void handleVisibility(media.id, "PUBLIC")}
+                      disabled={pendingVisibility !== null}
+                    >
+                      {pendingVisibility === media.id ? (
+                        <Loader2 aria-hidden="true" className="animate-spin" />
+                      ) : null}
+                      Autoriser la publication
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       {/* — SEO + mise en avant — */}

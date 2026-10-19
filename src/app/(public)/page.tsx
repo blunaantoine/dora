@@ -14,6 +14,9 @@ import {
   Users,
 } from "lucide-react";
 
+import { db } from "@/lib/db";
+import { serializePublicCard, type PublicCardView } from "@/lib/public-profile";
+import { ProfileCard } from "@/components/public/profile-card";
 import { Button } from "@/components/ui/button";
 
 // Slogan et contenus institutionnels — cahier des charges (slogan §0, mission
@@ -90,7 +93,60 @@ const DEMARCHE = [
   },
 ] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  // §4.1 : sélection de profils récemment publiés — données réelles uniquement
+  // (aucun profil fictif, aucun chiffre inventé). Sérialisation via le
+  // sérialiseur public unique (champs approuvés, double garde mineures).
+  const latestPublications = await db.profilePublication.findMany({
+    where: { state: "PUBLISHED" },
+    orderBy: { publishedAt: "desc" },
+    take: 3,
+    select: {
+      slug: true,
+      state: true,
+      approvedFields: true,
+      publishedAt: true,
+      person: {
+        select: {
+          publicName: true,
+          isMinor: true,
+          shortPresentation: true,
+          country: true,
+          category: { select: { name: true, slug: true, isActive: true } },
+          photoAsset: {
+            select: {
+              id: true,
+              kind: true,
+              status: true,
+              visibility: true,
+              width: true,
+              height: true,
+              originalName: true,
+            },
+          },
+          media: {
+            where: { visibility: "PUBLIC", status: { in: ["READY", "VALIDATED"] } },
+            orderBy: [{ kind: "asc" }, { uploadedAt: "asc" }],
+            take: 1,
+            select: {
+              id: true,
+              kind: true,
+              status: true,
+              visibility: true,
+              width: true,
+              height: true,
+              originalName: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const latestProfiles: PublicCardView[] = latestPublications
+    .map((publication) => serializePublicCard(publication.person, publication))
+    .filter((card): card is PublicCardView => card !== null);
+
   return (
     <>
       {/* Hero — fond vert profond, texte ivoire, accents or (AA respecté :
@@ -133,21 +189,20 @@ export default function HomePage() {
               size="lg"
               className="bg-gold text-pine-deep shadow-none transition-colors hover:bg-gold-soft focus-visible:ring-gold/50"
             >
-              <Link href="/annuaire">
+              <Link href="/profils">
                 Découvrir les parcours
                 <ArrowRight aria-hidden="true" />
               </Link>
             </Button>
-            {/* Fonctionnalité non encore disponible : bouton volontairement
-                désactivé, aucun lien mort. */}
+            {/* Proposition publique ouverte (§11) : formulaire réel sur
+                /proposer — l'équipe examine chaque proposition (§11.2). */}
             <Button
+              asChild
               size="lg"
-              disabled
-              aria-disabled="true"
-              title="La proposition de personnes à valoriser sera ouverte avec le lancement public de la plateforme."
-              className="border border-[#F8F5EF]/30 bg-transparent text-[#F8F5EF] shadow-none hover:bg-transparent hover:text-[#F8F5EF] disabled:opacity-70"
+              variant="outline"
+              className="border border-[#F8F5EF]/40 bg-transparent text-[#F8F5EF] shadow-none hover:bg-transparent hover:bg-[#F8F5EF]/10 hover:text-[#F8F5EF] focus-visible:ring-[#F8F5EF]/50"
             >
-              Proposer une personne — bientôt disponible
+              <Link href="/proposer">Proposer une personne</Link>
             </Button>
           </div>
         </div>
@@ -250,29 +305,48 @@ export default function HomePage() {
         </ol>
       </section>
 
-      {/* Clôture honnête */}
-      <section
-        aria-labelledby="lancement"
-        className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24"
-      >
-        <div className="rounded-xl border border-gold/50 bg-card p-6 sm:p-8">
-          <h2 id="lancement" className="font-display text-xl font-semibold text-foreground sm:text-2xl">
-            La plateforme prépare son lancement
-          </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-foreground/85 sm:text-base">
-            L&apos;annuaire des parcours sera ouvert progressivement, à mesure que les premiers
-            profils auront été examinés et validés. Les fonctions de proposition publique,
-            de témoignages et de reconnaissance arriveront ensuite, annoncées sur cette page.
-          </p>
-          <div className="mt-5">
-            <Button asChild variant="outline" className="border-pine text-pine hover:bg-accent hover:text-pine">
-              <Link href="/annuaire">
-                Consulter l&apos;annuaire
-                <ArrowRight aria-hidden="true" />
-              </Link>
-            </Button>
+      {/* Derniers parcours publiés (§4.1) — données réelles ou état vide honnête. */}
+      <section aria-labelledby="derniers-parcours" className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
+        <h2 id="derniers-parcours" className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
+          Derniers parcours publiés
+        </h2>
+        <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
+
+        {latestProfiles.length > 0 ? (
+          <>
+            <ul className="mt-8 grid list-none gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+              {latestProfiles.map((profile) => (
+                <li key={profile.slug} className="h-full">
+                  <ProfileCard profile={profile} />
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <Button asChild variant="outline" className="min-h-11 border-pine text-pine hover:bg-accent hover:text-pine">
+                <Link href="/profils">
+                  Découvrir tous les parcours
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="mt-8 rounded-xl border border-gold/50 bg-card p-6 sm:p-8">
+            <p className="flex items-start gap-3 text-sm leading-relaxed text-foreground/85 sm:text-base">
+              <Users aria-hidden="true" className="mt-1 size-5 shrink-0 text-pine" />
+              Les premiers parcours seront publiés prochainement, à mesure que les dossiers auront
+              été examinés et validés avec le consentement des personnes concernées.
+            </p>
+            <div className="mt-5">
+              <Button asChild variant="outline" className="min-h-11 border-pine text-pine hover:bg-accent hover:text-pine">
+                <Link href="/profils">
+                  Découvrir les parcours
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </section>
     </>
   );
