@@ -481,7 +481,7 @@ export function TestimonialsManager() {
       <AlertDialog open={clearContactTarget !== null} onOpenChange={(open) => { if (!open && pending === null) setClearContactTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer les coordonnées de ce témoignage ?</AlertDialogHeader>
+            <AlertDialogTitle>Supprimer les coordonnées de ce témoignage ?</AlertDialogTitle>
             <AlertDialogDescription>
               Le moyen de contact (« {clearContactTarget?.authorContact} ») sera définitivement
               effacé de la base. Le témoignage lui-même est conservé. L&apos;opération est tracée
