@@ -250,3 +250,18 @@ Work Log:
 Stage Summary:
 - Couverture MVP §24 complète côté application (21 fonctions obligatoires : site public, accueil, annuaire, profils, admin sécurisé, rôles, dossiers, invitations, formulaire multi-étapes, sauvegarde/reprise formulaire, médias, examen/clarification/publication, dépublication/archivage, propositions, témoignages, catégories, badges manuels, audit, pages légales, SEO de base, sauvegardes+restauration, tests de fonctionnement continus E2E).
 - Reste extérieur au code : inspection du VPS LWS (phase 8 — jamais effectuée, client doit fournir les accès/relevés), domaine réel, PAT GitHub pour la poussée, service d'envoi d'e-mails (reporté — notifications hors MVP).
+---
+Task ID: 7-0
+Agent: Z.ai (orchestrateur)
+Task: Vérification finale globale + clôture de session
+
+Work Log:
+- Balayage HTTP complet : 10 pages publiques 200 (accueil, profils, proposer, demandes-droits, contact, mentions-légales, confidentialité, sitemap.xml, robots.txt, api/health) ; 8 routes admin 302/401 anonyme (protection effective) ; invitation invalide gérée.
+- Mobile iPhone 14 : aucun débordement (accueil + annuaire). Capture tool-results/final-home-mobile.png.
+- Incident traité : erreur SQLite « readonly database » transitoire après le test de restauration (poignée de fichier) → redémarrage propre du serveur, écritures revalidées (login + audit), health 200, 0 erreur au journal.
+- Journal d'audit global vérifié : toutes les actions des phases 3→6 tracées (INVITATION_CREATED, CONSENT_RECORDED, DOSSIER_SUBMITTED, PROFILE_PUBLISHED/UNPUBLISHED, TESTIMONIAL_*, NOMINATION_*, BADGE_*, RIGHTS_REQUEST_*, LOGIN_*) — aucune donnée privée ni jeton.
+- lint 0 erreur ; tsc propre ; 6 commits locaux alignés sur les phases.
+- Poussée GitHub : toujours bloquée (aucun PAT disponible dans l'environnement). Remote origin = https://github.com/blunaantoine/dora.git, branche main prête : git push dès réception d'un token.
+
+Stage Summary:
+- MVP applicatif du cahier des charges couvert (21/21 fonctions obligatoires) et vérifié en conditions réelles à chaque phase. Reste hors code : inspection du VPS LWS (phase 8), domaine, PAT GitHub, service e-mail (reporté).
