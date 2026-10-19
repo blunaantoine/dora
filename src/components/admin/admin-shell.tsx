@@ -8,6 +8,7 @@ import {
   FolderOpen,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   ScrollText,
   Users,
@@ -53,10 +54,14 @@ export function AdminShell({
 
   const canManageAdmins = hasPermission(user.role, "MANAGE_ADMINS");
   const canViewAudit = hasPermission(user.role, "VIEW_AUDIT_LOG");
+  const canManageDossiers = hasPermission(user.role, "MANAGE_DOSSIERS");
 
   const navItems: NavItem[] = [
     { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
     { href: "/admin/dossiers", label: "Dossiers", icon: FolderOpen },
+    ...(canManageDossiers
+      ? [{ href: "/admin/invitations", label: "Invitations", icon: Mail }]
+      : []),
     ...(canManageAdmins
       ? [{ href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users }]
       : []),

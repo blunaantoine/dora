@@ -20,10 +20,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { AccessDenied } from "@/components/admin/access-denied";
+import { DossierInvitationPanel } from "@/components/admin/dossier-invitation-panel";
+import { DossierStatusActions } from "@/components/admin/dossier-status-actions";
 import { cn } from "@/lib/utils";
 
-// Détail d'un dossier — LECTURE SEULE (création / examen : phase 3).
-// Données privées et nom de gestion masqués si le rôle n'a pas MANAGE_DOSSIERS.
+// Détail d'un dossier — consultation complète + actions de gestion (phase 3) :
+// transitions de statut (machine à états) et gestion de l'invitation. Les
+// autres modifications de champs arrivent dans une phase ultérieure.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -147,6 +150,27 @@ export default async function DossierDetailPage({
     },
   });
 
+  // Invitation la plus récente du dossier (une seule active au maximum).
+  const invitation = canManage
+    ? await db.invitation.findFirst({
+        where: { personId: id },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          status: true,
+          expiresAt: true,
+          usedAt: true,
+          revokedAt: true,
+          createdAt: true,
+          accessCount: true,
+          lastAccessAt: true,
+        },
+      })
+    : null;
+
+  const dossierName =
+    (canManage && record.managementName) || record.publicName || "ce dossier";
+
   const statusLabel = DOSSIER_STATUS_LABELS[record.status as DossierStatus] ?? record.status;
   const statusClass = DOSSIER_STATUS_BADGE_CLASS[record.status as DossierStatus];
 
@@ -205,9 +229,44 @@ export default async function DossierDetailPage({
 
       <p className="mt-4 flex items-start gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
         <Lock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-pine" />
-        Vue en lecture seule — la modification, l&apos;examen et le changement de statut des dossiers
-        seront disponibles dans une phase ultérieure.
+        Consultation complète ; les transitions de statut et la gestion de l&apos;invitation sont
+        disponibles ci-dessous (toute action est journalisée). La modification fine des champs
+        arrivera dans une phase ultérieure.
       </p>
+
+      {canManage ? (
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <section aria-label="Statut du dossier" className="rounded-xl border border-border bg-card p-5 sm:p-6">
+            <h2 className="font-display text-lg font-semibold text-foreground">Statut du dossier</h2>
+            <Separator className="my-4" />
+            <DossierStatusActions dossierId={record.id} status={record.status} />
+          </section>
+
+          <section aria-label="Invitation du dossier" className="rounded-xl border border-border bg-card p-5 sm:p-6">
+            <h2 className="font-display text-lg font-semibold text-foreground">Invitation</h2>
+            <Separator className="my-4" />
+            <DossierInvitationPanel
+              dossierId={record.id}
+              dossierName={dossierName}
+              dossierStatus={record.status}
+              invitation={
+                invitation
+                  ? {
+                      id: invitation.id,
+                      status: invitation.status,
+                      expiresAt: invitation.expiresAt.toISOString(),
+                      usedAt: invitation.usedAt ? invitation.usedAt.toISOString() : null,
+                      revokedAt: invitation.revokedAt ? invitation.revokedAt.toISOString() : null,
+                      createdAt: invitation.createdAt.toISOString(),
+                      accessCount: invitation.accessCount,
+                      lastAccessAt: invitation.lastAccessAt ? invitation.lastAccessAt.toISOString() : null,
+                    }
+                  : null
+              }
+            />
+          </section>
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6">
         {/* Identité */}

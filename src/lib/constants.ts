@@ -276,6 +276,14 @@ export const INVITATION_STATUS_LABELS: Record<InvitationStatus, string> = {
   EXPIRED: "Expirée",
 };
 
+/** Classes Tailwind suggérées pour les badges de statut d'invitation. */
+export const INVITATION_STATUS_BADGE_CLASS: Record<InvitationStatus, string> = {
+  ACTIVE: "bg-emerald-50 text-emerald-800 border-emerald-200",
+  USED: "bg-stone-100 text-stone-700 border-stone-200",
+  REVOKED: "bg-red-50 text-red-800 border-red-200",
+  EXPIRED: "bg-stone-200 text-stone-600 border-stone-300",
+};
+
 export const INVITATION_CHANNELS = ["WHATSAPP", "EMAIL", "OTHER"] as const;
 export type InvitationChannel = (typeof INVITATION_CHANNELS)[number];
 

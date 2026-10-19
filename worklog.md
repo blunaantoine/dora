@@ -150,3 +150,20 @@ Stage Summary (contrat pour 3-b) :
 - Consent : POST /consent {consentCode, accepte:true} (clé française « accepte ») avant submit ; submit : POST /submit {} → 409 si déjà soumis.
 - Upload : POST /media multipart champ file (JPEG/PNG/WebP, magic bytes, ≤2 Mo) → data.media{id,kind,statut,sizeBytes,width,height} ; DELETE /media/[mediaId].
 - UI admin invitations : consommer /api/admin/invitations + PATCH [id] {action:"revoke"|"renew"} (vérifier le nom exact du champ action dans la route).
+---
+Task ID: 3-b
+Agent: full-stack-developer (livraison récupérée après dépassement de délai ; vérification complète par l'orchestrateur)
+Task: UI formulaire public 9 étapes + UI admin invitations
+
+Work Log:
+- Formulaire /invitation/[token] reconstruit : Server Component (validation serveur du jeton via validateInvitationToken) + Client Components src/components/invitation/ (form, consent-step, fields, initiatives-step, media-step, review-step, types). Navigation 9 étapes (Consentement, Identité, Parcours personnel, Scolaire/Pro, Initiatives, Vision, Médias, Choix de publication, Vérification) ; barre de progression ; étapes verrouillées avant consentement (boutons disabled + garde dans goToStep) ; consentement bloquant (case + nom tuteur si mineure, GUARDIAN_CONSENT auto-sélectionné pour FILLE 2008) ; sauvegarde PUT /draft par étape ; reprise automatique via GET /state (valeurs pré-remplies vérifiées après reload) ; upload médias avec aperçu liste + suppression ; récapitulatif + Soumettre (Dialog confirmation).
+- UI admin : /admin/invitations (liste statuts/dates/acces, filtre, Dialog création avec recherche dossier q=, URL affichée UNE fois + Copier + toast, AlertDialog pour Révoquer/Renouveler) ; panneau Invitation + actions de transition statut sur /admin/dossiers/[id] (transitions permises calculées via canTransition, AlertDialog de confirmation) ; lien « Invitations » ajouté à AdminShell.
+- Vérifications navigateur réelles (orchestrateur) : FILLE 2008 → notice tuteur + champs tuteur requis ✓ ; Continuer sans case → bloqué, étapes 2-9 disabled ✓ ; consent tuteur enregistré → étapes déverrouillées ✓ ; étape 2 saisie + Enregistrer → étape 3 ✓ ; reload → valeurs pré-remplies (Eya V./Togo/Kara) ✓ ; étape 7 upload JPEG réel → « Fichiers téléversés (1) » + Supprimer ✓ ; étapes 8-9 rendues avec récap ✓ (soumission NON déclenchée volontairement) ; admin : connexion → /admin/invitations liste réelle ✓ ; création invitation (recherche « Afi », sélection, URL + Copier + toast « Lien copié ») ✓ ; Révoquer (AlertDialog) → statut « Révoquée » ✓ ; token révoqué → 404 anti-énumération ✓ ; détail dossier → transitions confirmées (DRAFT→INVITE_CREATED→INVITE_SENT) + panel invitation propose une nouvelle après révocation ✓.
+- Audit vérifié en base : DOSSIER_STATUS_CHANGED ×2, INVITATION_CREATED, INVITATION_REVOKED, MEDIA_UPLOADED, INVITATION_ACCESSED, LOGIN_SUCCESS — tous SUCCESS.
+- lint 0 erreur ; tsc propre ; dev.log sans erreur. Captures : tool-results/p3b-{form-consent,admin-invitations,form-mobile}.png.
+- UX notée (acceptée) : après enregistrement du consentement, l'étape 1 reste affichée en mode « déjà enregistré » avec bouton Continuer (un clic supplémentaire, non bloquant).
+
+Stage Summary:
+- Parcours participant complet opérationnel bout en bout (invitation → consentement → 9 étapes → brouillon persistant → médias → récap), UI admin invitations opérationnelle.
+- Dossiers en base : Kossiwa Demonstration (ACTIVE, brouillon avec consent), Eya Verification (ACTIVE, brouillon avec consent tuteur + 1 média + étapes 2 remplies), Afi Test-E2E (INVITE_SENT, invitation RÉVOQUÉE — jetable), Afi Parcours (SUBMITTED + invitation USED — jetable).
+- Prêt pour phase 4 : examen (IN_REVIEW), publication (ProfilePublication), fiches publiques.
