@@ -364,6 +364,8 @@ export const AUDIT_ACTIONS = [
   "BADGE_UPDATED",
   "BADGE_ASSIGNED",
   "BADGE_REVOKED",
+  "RIGHTS_REQUEST_SUBMITTED",
+  "RIGHTS_REQUEST_STATUS_CHANGED",
   "RIGHTS_REQUEST_DECIDED",
   "SETTINGS_UPDATED",
 ] as const;
@@ -409,6 +411,8 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   BADGE_UPDATED: "Badge modifié",
   BADGE_ASSIGNED: "Badge attribué",
   BADGE_REVOKED: "Badge retiré",
+  RIGHTS_REQUEST_SUBMITTED: "Demande de droits reçue",
+  RIGHTS_REQUEST_STATUS_CHANGED: "Statut de demande de droits changé",
   RIGHTS_REQUEST_DECIDED: "Demande de droits traitée",
   SETTINGS_UPDATED: "Paramètres mis à jour",
 };

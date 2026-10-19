@@ -12,6 +12,7 @@ import {
   Mail,
   Menu,
   MessageSquareHeart,
+  Scale,
   ScrollText,
   Shapes,
   UserPlus,
@@ -106,6 +107,7 @@ export function AdminShell({
         ]
       : []),
     ...(canManageBadges ? [{ href: "/admin/badges", label: "Badges", icon: Award }] : []),
+    ...(canManageDossiers ? [{ href: "/admin/droits", label: "Droits des personnes", icon: Scale }] : []),
     ...(canManageAdmins
       ? [{ href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users }]
       : []),

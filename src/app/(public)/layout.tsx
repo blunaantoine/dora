@@ -109,6 +109,14 @@ export default function PublicLayout({
                 </li>
                 <li>
                   <Link
+                    href="/demandes-droits"
+                    className="rounded-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                  >
+                    Vos droits sur vos données
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/admin/connexion"
                     className="rounded-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
                   >

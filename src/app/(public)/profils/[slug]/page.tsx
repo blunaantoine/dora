@@ -524,9 +524,9 @@ export default async function ProfilPublicPage({
         <p className="flex items-start gap-2 text-sm text-muted-foreground">
           <Flag aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           <span>
-            Une erreur à signaler ou une correction à demander concernant cette fiche ?{" "}
+            Une erreur à signaler, une correction à demander, ou un retrait de publication ?{" "}
             <Link
-              href="/contact"
+              href={`/demandes-droits?profil=${view.slug}`}
               className="font-medium text-pine underline decoration-gold underline-offset-4 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
             >
               Signaler ou demander une correction
