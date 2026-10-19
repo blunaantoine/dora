@@ -112,3 +112,41 @@ Stage Summary:
 - PHASE 2 VALIDÉE par vérification E2E réelle : socle technique opérationnel (19 tables, auth révocable, permissions serveur, audit, UI admin, socle public honnête).
 - Criteres d'acceptation phase 2 du plan : visiteur bloqué ✓ (302/401), migrations exécutables ✓ (db:push), journal d'audit actif ✓.
 - Reste pour phase 3 : création de dossiers, invitations token, formulaire multi-étapes, consentements, téléversements. Dépend de la décision client sur l'âge minimal/consentement tuteur.
+---
+Task ID: 3-0
+Agent: Z.ai (orchestrateur)
+Task: Nom plateforme = Dora + restauration environnement + configuration GitHub
+
+Work Log:
+- Client a nommé la plateforme « Dora » (SITE_NAME) et demandé l'autonomie totale (plus d'attente de feu vert) + poussée de chaque mise à jour sur https://github.com/blunaantoine/dora.git
+- .env restauré (les clés NEXTAUTH_SECRET/NEXTAUTH_URL/SITE_NAME avaient disparu) : NEXTAUTH_SECRET régénéré (openssl rand -hex 32), SITE_NAME="Dora". .env.example recréé (valeurs changez-moi + variables du script admin).
+- .env reste hors suivi Git (.gitignore, politique §26.7).
+- Nouveau compte admin de développement créé via scripts/create-admin.ts (procédure sécurisée, mot de passe fort) : admin@dora-dev.local. Les comptes de la phase 2 E2E existent toujours (mots de passe perdus hors contexte).
+- Serveur dev redémarré : branding « Dora » vérifié en HTTP 200, /api/auth/providers OK.
+- git remote add origin https://github.com/blunaantoine/dora.git ; commit phase 2 (f6ed371).
+- Tentative de poussée : ÉCHEC authentification — aucun identifiant GitHub dans l'environnement (pas de PAT, pas de gh CLI, pas de credential helper). origin configuré ; chaque phase sera committée localement et poussée dès que le client fournira un token (PAT GitHub scope repo).
+
+Stage Summary:
+- Plateforme nommée Dora. Environnement sain. Remote GitHub configuré. Poussée en attente d'un PAT client (blocage externe, signalé).
+---
+Task ID: 3-a
+Agent: full-stack-developer (livraison récupérée après dépassement de délai ; vérification complète par l'orchestrateur)
+Task: Backend phase 3 — dossiers admin, invitations token sécurisé, téléversements, consentements
+
+Work Log:
+- Livrables vérifiés présents : src/lib/tokens.ts (CSPRNG 32 o base64url + SHA-256, hash seul en base), src/lib/consent-texts.ts (ADULT_CONSENT/GUARDIAN_CONSENT v1) + scripts/seed-consent-texts.ts exécuté ; src/lib/media.ts, invitation-guard.ts, admin-guard.ts, invitation-draft.ts (zod .strict(), 24 champs texte + initiatives ≤10 + contacts privés), dossier-status.ts, person.ts.
+- API admin : POST /api/admin/dossiers (création, genre FEMME/FILLE, XOR date/année naissance), PATCH /api/admin/dossiers/[id] (édition + transitions via canTransition + audit), GET avec recherche q ; /api/admin/invitations (POST révoque l'ancienne invitation active avant création, GET liste blanche), /api/admin/invitations/[id] (revoke/renew) ; /api/admin/media/[id]/file (servage privé D7, Cache-Control private no-store).
+- API publique invitation : GET [token] (404 générique anti-énumération), /state (reprise brouillon), /draft (PUT zod strict), /consent (versionné), /media (upload magic bytes JPEG/PNG/WebP + sharp EXIF strip + ré-encodage + uploads-private/ hors public), /media/[id] DELETE, /submit (verrouillage + invitation USED).
+- .gitignore : uploads-private/ ajouté.
+- Tests curl réels E2E : login 302+session ✓ ; POST dossier ✓ ; POST invitation (url /invitation/<token>) ✓ ; GET invitation publique (texte consentement inclus) ✓ ; state ✓ ; PUT draft (publicName/storyJourney/contacts/initiative OBSERVED) ✓ persistance ✓ ; CONSENT ✓ ; upload JPEG 300×200 ✓ (media READY) ; GET file admin image/jpeg 200 ✓ ; rejet MZ fake.exe TYPE_NON_SUPPORTE ✓ ; submit → SUBMITTED ✓ ; re-submit 409 CONFLICT ✓ ; token réutilisé 404 ✓ ; anonyme /api/admin 401 ✓.
+- Journal d'audit vérifié : DOSSIER_CREATED ×3, INVITATION_CREATED, INVITATION_ACCESSED, CONSENT_RECORDED, MEDIA_UPLOADED, DOSSIER_STATUS_CHANGED ×3, DOSSIER_SUBMITTED — tous SUCCESS, sans token ni hash dans les métadonnées.
+- bun run lint : 0 erreur ; tsc --noEmit : propre sur src/** + scripts/**.
+- Dossier de démonstration actif créé pour le développement UI 3-b : /invitation/8r5s98Sv34BW93UaJBFJmCTyS5qhX8mqiiFrPVKh7E8 (dossier « Kossiwa Demonstration », FEMME 1990).
+
+Stage Summary (contrat pour 3-b) :
+- Le formulaire 9 étapes (§7) se construit sur : GET /api/invitation/[token] (validité + consent à accepter), GET /state (reprise), PUT /draft (champs : publicName, shortPresentation, biography, country, region, city, languages, storyJourney, engagementMotivation, keyEvent, difficultiesEncountered, lessonsLearned, inspirationSource, education, professionalExperience, responsibilities, organizations, skills, distinctions, visionCommunity, futureGoals, projectsToDevelop, supportNeeded, messageToYouth + contacts{phone,email,contactPreference} + initiatives[{title,description,periodLabel,actionArea,beneficiaries,rolePlayed,partners,objectives,results,resultsType(OBSERVED|ESTIMATED|GOAL),evidence,difficulties,learnings,projectState}]).
+- Enum réels : genre FEMME|FILLE ; resultsType OBSERVED|ESTIMATED|GOAL (PAS MESURABLE).
+- Réponses : {ok:true,data} ; erreurs {ok:false,error:{code,message,fields?}}.
+- Consent : POST /consent {consentCode, accepte:true} (clé française « accepte ») avant submit ; submit : POST /submit {} → 409 si déjà soumis.
+- Upload : POST /media multipart champ file (JPEG/PNG/WebP, magic bytes, ≤2 Mo) → data.media{id,kind,statut,sizeBytes,width,height} ; DELETE /media/[mediaId].
+- UI admin invitations : consommer /api/admin/invitations + PATCH [id] {action:"revoke"|"renew"} (vérifier le nom exact du champ action dans la route).

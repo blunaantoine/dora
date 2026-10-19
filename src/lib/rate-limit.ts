@@ -67,6 +67,8 @@ const LOGIN_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 15 * 60_000; // 15 minutes
 const INVITATION_ATTEMPTS = 20;
 const INVITATION_WINDOW_MS = 60 * 60_000; // 1 heure
+const INVITATION_DRAFT_ATTEMPTS = 120;
+const INVITATION_DRAFT_WINDOW_MS = 5 * 60_000; // 5 minutes (sauvegarde automatique §7.1)
 const ADMIN_API_ATTEMPTS = 120;
 const ADMIN_API_WINDOW_MS = 60_000; // 1 minute
 
@@ -83,6 +85,16 @@ export function loginRateLimit(ip: string, email: string): RateLimitResult {
 /** Endpoints d'invitation (accès au lien privé) : 20 accès / heure par IP. */
 export function invitationRateLimit(ip: string): RateLimitResult {
   return rateLimit(`invitation:${ip}`, INVITATION_ATTEMPTS, INVITATION_WINDOW_MS);
+}
+
+/**
+ * Sauvegarde du brouillon invité : 120 requêtes / 5 min par IP. Fenêtre plus
+ * souple que invitationRateLimit car le formulaire (§7.1) sauvegarde
+ * automatiquement et périodiquement — une limite horaire stricte casserait
+ * la reprise et la sauvegarde automatique.
+ */
+export function invitationDraftRateLimit(ip: string): RateLimitResult {
+  return rateLimit(`invitation-draft:${ip}`, INVITATION_DRAFT_ATTEMPTS, INVITATION_DRAFT_WINDOW_MS);
 }
 
 /** API d'administration : 120 requêtes / minute par IP. */

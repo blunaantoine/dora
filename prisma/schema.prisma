@@ -52,7 +52,10 @@ model PersonRecord {
   status       String  @default("DRAFT") // machine à états : voir DOSSIER_STATUSES
   // Identité
   managementName String // nom privé de gestion (interne)
+  givenName    String? // prénom (privé — utilisé pour l'accueil du formulaire invité)
+  familyName   String? // nom de famille (privé — seule l'initiale est exposée au public)
   publicName   String?
+  gender       String? // FEMME | FILLE (voir GENDER_VALUES)
   shortPresentation String?
   biography    String?
   birthYear    Int?
@@ -152,6 +155,7 @@ model Invitation {
   createdAt   DateTime @default(now())
 
   @@index([status, expiresAt])
+  @@index([personId, status])
 }
 
 // ---------------------------------------------------------------------------
@@ -231,13 +235,15 @@ model MediaAsset {
   initiative   Initiative? @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
   kind         String // PROFILE_PHOTO | ACTIVITY_PHOTO | POSTER | DOCUMENT | OTHER
   visibility   String  @default("PRIVATE") // PUBLIC | PRIVATE
-  status       String  @default("PENDING") // PENDING | VALIDATED | REJECTED
+  status       String  @default("PENDING") // PENDING | READY | VALIDATED | REJECTED | DELETED
   storagePath  String
   originalName String?
   mimeType     String
   sizeBytes    Int
   width        Int?
   height       Int?
+  checksum     String? // empreinte SHA-256 du fichier traité (intégrité/déduplication)
+  uploadedByTokenHash String? // empreinte du jeton d'invitation ayant téléversé (traçabilité sans stocker le jeton)
   uploadedAt   DateTime @default(now())
   validatedAt  DateTime?
   validatedById String?
@@ -245,6 +251,7 @@ model MediaAsset {
   principalFor PersonRecord[] @relation("principalPhoto")
 
   @@index([status])
+  @@index([personId])
 }
 
 // ---------------------------------------------------------------------------
@@ -273,7 +280,10 @@ model ConsentRecord {
   consentText   ConsentText  @relation(fields: [consentTextId], references: [id], onDelete: Restrict)
   acceptedAt    DateTime @default(now())
   method        String   @default("FORM")
-  demonstration String?
+  ip            String? // IP au moment du consentement (preuve, §22)
+  demonstration String? // éléments complémentaires de preuve (JSON : relation du tuteur, etc.)
+
+  @@index([personId])
 }
 
 // ---------------------------------------------------------------------------

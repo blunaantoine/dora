@@ -28,7 +28,7 @@ export type Permission = (typeof PERMISSIONS)[number];
 export const PERMISSIONS_BY_ROLE: Readonly<Record<Role, readonly Permission[]>> = {
   ADMIN: PERMISSIONS,
   MODERATOR: ["MODERATE_TESTIMONIALS", "MANAGE_NOMINATIONS", "VIEW_STATS"],
-  EDITOR: ["MANAGE_CATEGORIES", "VIEW_STATS"],
+  EDITOR: ["MANAGE_DOSSIERS", "MANAGE_CATEGORIES", "VIEW_STATS"],
 };
 
 /**

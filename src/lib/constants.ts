@@ -207,19 +207,38 @@ export const MEDIA_VISIBILITY_LABELS: Record<MediaVisibility, string> = {
   PRIVATE: "Privée",
 };
 
-export const MEDIA_STATUSES = ["PENDING", "VALIDATED", "REJECTED"] as const;
+export const MEDIA_STATUSES = [
+  "PENDING",
+  "READY",
+  "VALIDATED",
+  "REJECTED",
+  "DELETED",
+] as const;
 export type MediaStatus = (typeof MEDIA_STATUSES)[number];
 
 export const MEDIA_STATUS_LABELS: Record<MediaStatus, string> = {
   PENDING: "En attente de validation",
+  READY: "Téléversé (à valider)",
   VALIDATED: "Validé",
   REJECTED: "Rejeté",
+  DELETED: "Supprimé",
 };
+
+/** Nombre maximal de médias téléversables par dossier (§7.8 — limitation). */
+export const MEDIA_MAX_PER_DOSSIER = 20;
+
+/** Largeur maximale (px) après traitement sharp (§17.5). */
+export const MEDIA_MAX_WIDTH_PX = 1600;
+
+/** Qualité JPEG du ré-encodage sharp. */
+export const MEDIA_JPEG_QUALITY = 82;
 
 // --- Consentements (§7.2) ------------------------------------------------------
 
 export const CONSENT_CODES = [
   "PRIVACY_POLICY",
+  "ADULT_CONSENT",
+  "GUARDIAN_CONSENT",
   "PUBLICATION_CONSENT",
   "IMAGE_CONSENT",
   "MINOR_GUARDIAN_CONSENT",
@@ -229,11 +248,21 @@ export type ConsentCode = (typeof CONSENT_CODES)[number];
 
 export const CONSENT_CODE_LABELS: Record<ConsentCode, string> = {
   PRIVACY_POLICY: "Politique de confidentialité",
+  ADULT_CONSENT: "Consentement de la personne majeure",
+  GUARDIAN_CONSENT: "Consentement du représentant légal (mineure)",
   PUBLICATION_CONSENT: "Consentement à la publication du parcours",
   IMAGE_CONSENT: "Consentement à l'utilisation d'images",
   MINOR_GUARDIAN_CONSENT: "Consentement du représentant légal (personne mineure)",
   TESTIMONIAL_RULES: "Règles de publication des témoignages",
 };
+
+/**
+ * Code de consentement requis selon la majorité de la participante (§14) :
+ * la personne majeure consent elle-même ; pour une mineure, le consentement
+ * du représentant légal est recueilli.
+ */
+export const CONSENT_CODE_MAJEURE: ConsentCode = "ADULT_CONSENT";
+export const CONSENT_CODE_MINEURE: ConsentCode = "GUARDIAN_CONSENT";
 
 // --- Invitations (§6) ----------------------------------------------------------
 
@@ -291,10 +320,17 @@ export const AUDIT_ACTIONS = [
   "LOGIN_SUCCESS",
   "LOGIN_FAILED",
   "LOGOUT",
+  "DOSSIER_CREATED",
+  "DOSSIER_UPDATED",
+  "DOSSIER_STATUS_CHANGED",
+  "DOSSIER_SUBMITTED",
   "INVITATION_CREATED",
   "INVITATION_REVOKED",
+  "INVITATION_RENEWED",
   "INVITATION_ACCESSED",
-  "DOSSIER_STATUS_CHANGED",
+  "CONSENT_RECORDED",
+  "MEDIA_UPLOADED",
+  "MEDIA_DELETED",
   "PROFILE_PUBLISHED",
   "PROFILE_UNPUBLISHED",
   "PROFILE_MODIFIED",
@@ -312,10 +348,17 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   LOGIN_SUCCESS: "Connexion réussie",
   LOGIN_FAILED: "Échec de connexion",
   LOGOUT: "Déconnexion",
+  DOSSIER_CREATED: "Dossier créé",
+  DOSSIER_UPDATED: "Dossier modifié",
+  DOSSIER_STATUS_CHANGED: "Changement de statut d'un dossier",
+  DOSSIER_SUBMITTED: "Dossier soumis par la participante",
   INVITATION_CREATED: "Invitation créée",
   INVITATION_REVOKED: "Invitation révoquée",
+  INVITATION_RENEWED: "Invitation renouvelée",
   INVITATION_ACCESSED: "Invitation consultée",
-  DOSSIER_STATUS_CHANGED: "Changement de statut d'un dossier",
+  CONSENT_RECORDED: "Consentement enregistré",
+  MEDIA_UPLOADED: "Média téléversé",
+  MEDIA_DELETED: "Média supprimé",
   PROFILE_PUBLISHED: "Profil publié",
   PROFILE_UNPUBLISHED: "Profil dépublié",
   PROFILE_MODIFIED: "Profil modifié",
@@ -350,3 +393,26 @@ export const ADMIN_SESSION_CACHE_TTL_MS = 30_000;
 
 /** Nombre de caractères maximal des métadonnées d'audit (JSON sérialisé). */
 export const AUDIT_METADATA_MAX_LENGTH = 4000;
+
+/**
+ * Statuts de dossier dans lesquels le formulaire invité est OUVRABLE
+ * (jeton valide côté API publique). Au-delà, le dossier est considéré
+ * verrouillé pour la participante (§7.10 : après soumission, modifications
+ * limitées — la réouverture après demande de clarification passera par
+ * CLARIFICATION_RECEIVED en phase 4).
+ */
+export const DOSSIER_FORM_OPEN_STATUSES = [
+  "DRAFT",
+  "INVITATION_CREATED",
+  "INVITATION_SENT",
+  "IN_PROGRESS",
+] as const satisfies readonly DossierStatus[];
+
+/** Valeurs admises pour le champ « genre » (plateforme dédiée aux femmes et filles). */
+export const GENDER_VALUES = ["FEMME", "FILLE"] as const;
+export type GenderValue = (typeof GENDER_VALUES)[number];
+
+export const GENDER_LABELS: Record<GenderValue, string> = {
+  FEMME: "Femme",
+  FILLE: "Fille",
+};
