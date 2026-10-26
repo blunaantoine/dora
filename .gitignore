@@ -54,3 +54,6 @@ server.log
 /skills/
 # Stockage privé des médias téléversés (hors Git — décision D7)
 uploads-private/
+# Artefacts runtime du sandbox
+.zscripts/dev.pid
+.zscripts/*.log

@@ -265,3 +265,20 @@ Work Log:
 
 Stage Summary:
 - MVP applicatif du cahier des charges couvert (21/21 fonctions obligatoires) et vérifié en conditions réelles à chaque phase. Reste hors code : inspection du VPS LWS (phase 8), domaine, PAT GitHub, service e-mail (reporté).
+---
+Task ID: 7-1
+Agent: Z.ai (orchestrateur)
+Task: Poussée GitHub (PAT reçu), restauration .env, README dépôt, vérification finale post-redémarrage
+
+Work Log:
+- PAT fourni par le client → remote origin configuré avec le jeton → POUSSÉE RÉUSSIE : 6 commits (phase 2 → vérification finale 7-0) sur https://github.com/blunaantoine/dora.git (nouvelle branche main, origin/main = 4f66fea). Le blocage externe de longue date est levé.
+- Incident .env récurrent traité : le sandbox a à nouveau tronqué .env (ne restait que DATABASE_URL) et supprimé .env.local → régénérés avec NEXTAUTH_SECRET neuf (openssl rand -base64 32), NEXTAUTH_URL, SITE_NAME=Dora, CONTACT_EMAIL. Les deux fichiers restent hors Git (gitignore .env*).
+- Redémarrage serveur via le mécanisme sandbox officiel (.zscripts/dev.sh, disown) après constat que nohup & était tué en fin de commande shell.
+- README.md créé pour le dépôt GitHub (présentation, confidentialité par défaut, stack, démarrage local, scripts d'exploitation, statut MVP 21/21, avertissement identifiants dev).
+- Correction hygiène Git : .zscripts/dev.pid (artefact runtime commité par erreur lors des phases précédentes) retiré du suivi ; .gitignore complété (.zscripts/dev.pid, .zscripts/*.log).
+- Vérifications réelles post-restauration : /api/health 200 {"status":"ok"} ; login admin curl 200 + session ADMIN valide ; 16 routes balayées 200 (7 publiques + sitemap + 8 admin) ; navigateur : accueil, annuaire (12 catégories), /proposer, /demandes-droits, /admin/connexion → /admin (compteurs réels 10 dossiers, 1 proposition à traiter), /admin/droits, /admin/badges — 0 erreur console ; mobile iPhone 14 sans débordement (scrollWidth <= innerWidth = true), capture tool-results/final-push-home-mobile.png.
+- Cahier des charges revérifié : §10 notations = facultative MVP (« activée uniquement après validation de son utilité ») et listée dans les fonctionnalités reportées → rien à implémenter sans décision du client ; aucun export CSV exigé.
+
+Stage Summary:
+- Le dépôt GitHub https://github.com/blunaantoine/dora.git est à jour de l'intégralité du travail (7 commits). Les poussées suivantes se feront automatiquement à chaque commit.
+- MVP applicatif complet et revalidé après restauration d'environnement. Restent hors code : inspection du VPS LWS (phase 8, accès client requis), domaine réel, service e-mail (reporté), décisions client sur les fonctionnalités reportées.
