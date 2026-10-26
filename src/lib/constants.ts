@@ -454,11 +454,15 @@ export const DOSSIER_FORM_OPEN_STATUSES = [
   "IN_PROGRESS",
 ] as const satisfies readonly DossierStatus[];
 
-/** Valeurs admises pour le champ « genre » (plateforme dédiée aux femmes et filles). */
-export const GENDER_VALUES = ["FEMME", "FILLE"] as const;
+/** Valeurs admises pour le champ « genre » — décision client : les hommes
+ * sont également pris en compte (femmes et filles au premier plan de la
+ * mission, parcours des hommes accueillis à égalité fonctionnelle). */
+export const GENDER_VALUES = ["FEMME", "FILLE", "HOMME", "GARCON"] as const;
 export type GenderValue = (typeof GENDER_VALUES)[number];
 
 export const GENDER_LABELS: Record<GenderValue, string> = {
   FEMME: "Femme",
   FILLE: "Fille",
+  HOMME: "Homme",
+  GARCON: "Garçon",
 };

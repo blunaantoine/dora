@@ -68,7 +68,7 @@ const DEMARCHE = [
     etape: "1",
     titre: "Identification",
     texte:
-      "L'équipe repère les parcours de femmes et de filles engagées, sur proposition du public ou par ses propres recherches.",
+      "L'équipe repère les parcours de femmes et de filles engagées — ainsi que ceux des hommes qui s'engagent à leurs côtés — sur proposition du public ou par ses propres recherches.",
   },
   {
     icon: MailPlus,
@@ -181,7 +181,8 @@ export default async function HomePage() {
             éducatifs, sociaux, humanitaires, entrepreneuriaux, environnementaux, culturels ou
             citoyens. Leurs initiatives restent pourtant souvent peu visibles. Cette plateforme a
             pour vocation de documenter, valoriser et transmettre ces parcours — avec rigueur,
-            consentement et protection des personnes.
+            consentement et protection des personnes. Les parcours des hommes qui s&apos;engagent
+            à leurs côtés y sont également accueillis.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button

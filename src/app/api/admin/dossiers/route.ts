@@ -99,7 +99,7 @@ export const GET = withApi(async (req) => {
 const createSchema = z.object({
   nom: z.string().trim().min(1, "Le nom est obligatoire.").max(100),
   prenom: z.string().trim().min(1, "Le prénom est obligatoire.").max(100),
-  genre: z.enum(GENDER_VALUES, { message: "Genre attendu : FEMME ou FILLE." }),
+  genre: z.enum(GENDER_VALUES, { message: "Genre attendu : FEMME, FILLE, HOMME ou GARCON." }),
   dateNaissance: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Format attendu : AAAA-MM-JJ.")

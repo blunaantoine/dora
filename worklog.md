@@ -282,3 +282,22 @@ Work Log:
 Stage Summary:
 - Le dépôt GitHub https://github.com/blunaantoine/dora.git est à jour de l'intégralité du travail (7 commits). Les poussées suivantes se feront automatiquement à chaque commit.
 - MVP applicatif complet et revalidé après restauration d'environnement. Restent hors code : inspection du VPS LWS (phase 8, accès client requis), domaine réel, service e-mail (reporté), décisions client sur les fonctionnalités reportées.
+---
+Task ID: 7-2
+Agent: Z.ai (orchestrateur)
+Task: Décision client « les hommes aussi sont pris en compte » — ouverture du genre à HOMME/GARCON
+
+Work Log:
+- Surface de code analysée : le genre est fixé par l'admin à la création du dossier (POST /api/admin/dossiers {genre}), jamais saisissable par la personne invitée, jamais publié (absent de la liste blanche publique) — l'ouverture est donc concentrée sur la validation admin et l'affichage.
+- src/lib/constants.ts : GENDER_VALUES étendu à ["FEMME","FILLE","HOMME","GARCON"] + GENDER_LABELS (« Homme », « Garçon ») + commentaire de décision client.
+- Messages zod mis à jour dans POST /api/admin/dossiers et PATCH /api/admin/dossiers/[id] (« Genre attendu : FEMME, FILLE, HOMME ou GARCON. »).
+- prisma/schema.prisma : commentaire du champ gender mis à jour (type String — aucune migration requise).
+- Textes sobres d'ouverture : accueil (paragraphe hero + « Les parcours des hommes qui s'engagent à leurs côtés y sont également accueillis »), démarche étape 1 (identification inclut les hommes), description globale layout.tsx. La mission cœur (femmes et filles au premier plan) est conservée conformément au cahier des charges ; l'ouverture est documentée, pas substituée.
+- Textes de consentement v1.0 : vérifiés neutres (aucune mention de genre) → aucune nouvelle version nécessaire.
+- E2E curl : dossier HOMME (1990) créé {gender:"HOMME", isMinor:false} ✓ ; dossier GARCON (2010) créé {gender:"GARCON", isMinor:true} — la détection mineure fonctionne pour un garçon ✓ ; invitation créée et API publique renvoie genre/estMineure corrects ✓ ; archivage des 2 dossiers de test via {"status":"ARCHIVED"} (transition INVITATION_CREATED→ARCHIVED de la machine à états) ✓ ; jeton du garçon révoqué ✓.
+- Sécurité revalidée au passage : validateInvitationToken verrouille tout dossier hors DOSSIER_FORM_OPEN_STATUSES (DOSSIER_LOCKED → 404 générique) — une invitation ACTIVE orpheline sur dossier archivé ne donne accès à rien.
+- lint 0 erreur ; tsc propre ; navigateur : accueil affiche la nouvelle phrase (eval true), 0 erreur console.
+
+Stage Summary:
+- Les hommes (adultes HOMME et mineurs GARCON) passent désormais tout le pipeline : création admin → invitation → formulaire → examen → publication, avec les mêmes protections (garçon mineure = estMineure true → tuteur + modèle restreint).
+- Décision client consignée : mission « femmes et filles » conservée comme cœur, hommes accueillis à égalité fonctionnelle.

@@ -29,7 +29,7 @@ const patchSchema = z.object({
   familyName: z.string().trim().min(1, "Le nom est obligatoire.").max(100).optional(),
   managementName: z.string().trim().min(1, "Le nom de gestion est obligatoire.").max(200).optional(),
   publicName: z.string().trim().max(150).nullable().optional(),
-  gender: z.enum(GENDER_VALUES, { message: "Genre attendu : FEMME ou FILLE." }).optional(),
+  gender: z.enum(GENDER_VALUES, { message: "Genre attendu : FEMME, FILLE, HOMME ou GARCON." }).optional(),
   birthYear: z.coerce.number().int().min(1900).max(new Date().getFullYear()).nullable().optional(),
   isMinor: z.boolean().optional(),
   // Présentation et localisation

@@ -55,7 +55,7 @@ model PersonRecord {
   givenName    String? // prénom (privé — utilisé pour l'accueil du formulaire invité)
   familyName   String? // nom de famille (privé — seule l'initiale est exposée au public)
   publicName   String?
-  gender       String? // FEMME | FILLE (voir GENDER_VALUES)
+  gender       String? // FEMME | FILLE | HOMME | GARCON (voir GENDER_VALUES)
   shortPresentation String?
   biography    String?
   birthYear    Int?
