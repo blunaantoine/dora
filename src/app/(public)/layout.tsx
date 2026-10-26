@@ -16,16 +16,21 @@ export default function PublicLayout({
           <Link
             href="/"
             className="flex min-w-0 items-center gap-2.5 rounded-md focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-            aria-label={`${siteName} — retour à l'accueil`}
+            aria-label={`${siteName} — Distinguer, Oser, Reconnaître, Agir — retour à l'accueil`}
           >
             <span
               aria-hidden="true"
               className="flex size-9 shrink-0 items-center justify-center rounded-full bg-pine font-display text-sm font-semibold text-[#F8F5EF]"
             >
-              <span className="text-gold">V</span>
+              <span className="text-gold">D</span>
             </span>
-            <span className="truncate font-display text-base font-semibold text-foreground sm:text-lg">
-              {siteName}
+            <span className="min-w-0">
+              <span className="block truncate font-display text-base leading-tight font-semibold text-foreground sm:text-lg">
+                {siteName}
+              </span>
+              <span className="hidden text-[11px] leading-tight tracking-wide text-muted-foreground md:block">
+                Distinguer · Oser · Reconnaître · Agir
+              </span>
             </span>
           </Link>
           <nav aria-label="Navigation principale" className="flex items-center gap-1 sm:gap-2">
@@ -52,6 +57,9 @@ export default function PublicLayout({
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="max-w-sm">
               <p className="font-display text-base font-semibold text-foreground">{siteName}</p>
+              <p className="mt-1 text-xs font-medium tracking-wide text-gold">
+                Distinguer · Oser · Reconnaître · Agir
+              </p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Un espace de reconnaissance, de transmission d&apos;expériences et de découverte de
                 parcours inspirants.

@@ -1,6 +1,8 @@
 # Dora
 
-Plateforme web de valorisation des femmes et des filles engagées dans des actions sociales, éducatives, humanitaires, environnementales et citoyennes (cadre : loi n° 2019-014 portant IPDCP au Togo).
+**Dora = Distinguer, Oser, Reconnaître, Agir.**
+
+Plateforme web de valorisation des femmes et des filles engagées dans des actions sociales, éducatives, humanitaires, environnementales et citoyennes (cadre : loi n° 2019-014 portant IPDCP au Togo). Les parcours des hommes engagés y sont également accueillis.
 
 ## Présentation
 

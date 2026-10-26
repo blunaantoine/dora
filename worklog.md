@@ -301,3 +301,18 @@ Work Log:
 Stage Summary:
 - Les hommes (adultes HOMME et mineurs GARCON) passent désormais tout le pipeline : création admin → invitation → formulaire → examen → publication, avec les mêmes protections (garçon mineure = estMineure true → tuteur + modèle restreint).
 - Décision client consignée : mission « femmes et filles » conservée comme cœur, hommes accueillis à égalité fonctionnelle.
+---
+Task ID: 7-3
+Agent: Z.ai (orchestrateur)
+Task: Identité de marque — DORA = Distinguer, Oser, Reconnaître, Agir (décision client)
+
+Work Log:
+- Correction d'un vestige de l'ancien nom : le logo de l'en-tête affichait « V » → remplacé par « D » (or sur disque vert pine).
+- En-tête public : sous-ligne « Distinguer · Oser · Reconnaître · Agir » sous le nom Dora (masquée < md pour préserver h-16, accessible via aria-label du lien logo).
+- Accueil : nouvelle section « Dora, c'est un engagement » entre le hero et la mission — 4 cartes (grille 1/2/4 colonnes) avec initiales géantes en or et une phrase d'engagement chacune : Distinguer (repérer et documenter avec rigueur et preuves), Oser (espace sécurisé pour raconter librement), Reconnaître (examiner puis publier avec honnêteté, exigence et consentement), Agir (transmettre pour inspirer des engagements durables).
+- Pied de page : signification de l'acronyme ajoutée sous le nom du site (petites capitales or).
+- SEO : metadata description globale « Dora — Distinguer, Oser, Reconnaître, Agir. … » ; README.md mis à jour avec l'acronyme en tête.
+- Vérifications : lint 0 erreur ; tsc propre ; accueil 200 ; navigateur — section rendue (snapshot confirme les 4 items), 0 erreur console ; desktop capture tool-results/acronyme-section.png (initiales or lisibles, contraste AA respecté : or uniquement sur cartes claires en grand corps de texte décoratif) ; mobile iPhone 14 sans débordement (true) + capture acronyme-mobile.png.
+
+Stage Summary:
+- L'acronyme DORA est désormais l'identité visible de la plateforme : en-tête (logo D + sous-ligne), accueil (section dédiée), pied de page, métadonnées SEO et README. Aucun changement fonctionnel ni de données.

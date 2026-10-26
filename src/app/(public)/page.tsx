@@ -209,6 +209,81 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* L'acronyme DORA — identité du nom (décision client : Distinguer,
+          Oser, Reconnaître, Agir). Initiales en or sur cartes, style cohérent
+          avec le reste de la page. */}
+      <section
+        aria-labelledby="acronyme"
+        className="mx-auto w-full max-w-6xl px-4 pt-14 sm:px-6 sm:pt-20"
+      >
+        <h2
+          id="acronyme"
+          className="font-display text-2xl font-semibold text-foreground sm:text-3xl"
+        >
+          Dora, c&apos;est un engagement
+        </h2>
+        <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
+        <p className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/85">
+          Le nom de la plateforme est une promesse, lettre par lettre :
+        </p>
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+            <span
+              aria-hidden="true"
+              className="font-display text-4xl leading-none font-semibold text-gold"
+            >
+              D
+            </span>
+            <h3 className="mt-3 font-display text-base font-semibold text-foreground">
+              Distinguer
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Repérer et documenter des parcours d&apos;engagement, souvent discrets, avec rigueur
+              et preuves.
+            </p>
+          </li>
+          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+            <span
+              aria-hidden="true"
+              className="font-display text-4xl leading-none font-semibold text-gold"
+            >
+              O
+            </span>
+            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Oser</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Offrir à chaque personne invitée un espace sécurisé pour raconter librement son
+              histoire.
+            </p>
+          </li>
+          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+            <span
+              aria-hidden="true"
+              className="font-display text-4xl leading-none font-semibold text-gold"
+            >
+              R
+            </span>
+            <h3 className="mt-3 font-display text-base font-semibold text-foreground">
+              Reconnaître
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Examiner puis publier chaque parcours avec honnêteté, exigence et consentement.
+            </p>
+          </li>
+          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+            <span
+              aria-hidden="true"
+              className="font-display text-4xl leading-none font-semibold text-gold"
+            >
+              A
+            </span>
+            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Agir</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Transmettre les apprentissages pour inspirer d&apos;autres engagements durables.
+            </p>
+          </li>
+        </ul>
+      </section>
+
       {/* Notre mission */}
       <section aria-labelledby="mission" className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
         <h2 id="mission" className="font-display text-2xl font-semibold text-foreground sm:text-3xl">

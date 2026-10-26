@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     template: `%s — ${siteName}`,
   },
   description:
-    "Plateforme de valorisation des femmes et des filles engagées : documenter, reconnaître et transmettre les parcours d'engagement qui font avancer les communautés. Les parcours des hommes engagés y sont également accueillis.",
+    "Dora — Distinguer, Oser, Reconnaître, Agir. Plateforme de valorisation des femmes et des filles engagées : documenter, reconnaître et transmettre les parcours qui font avancer les communautés. Les parcours des hommes engagés y sont également accueillis.",
 };
 
 export default function RootLayout({
