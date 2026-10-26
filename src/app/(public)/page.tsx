@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   BadgeCheck,
@@ -168,7 +169,8 @@ export default async function HomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute -bottom-32 -left-16 size-64 rounded-full border border-gold/20 sm:size-80"
         />
-        <div className="relative mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
+        <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:flex-row lg:items-center lg:gap-14 lg:py-28">
+          <div className="min-w-0 flex-1">
           <p className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-pine-deep/40 px-3 py-1 text-xs font-medium tracking-wide text-gold">
             <HandHeart aria-hidden="true" className="size-3.5" />
             Projet en préparation
@@ -176,7 +178,10 @@ export default async function HomePage() {
           <h1 className="mt-6 max-w-3xl font-display text-3xl leading-tight font-semibold text-balance sm:text-4xl lg:text-5xl">
             Celles qui font avancer le monde méritent d&apos;être connues.
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#F8F5EF]/85 sm:text-lg">
+          <p className="mt-5 max-w-2xl text-lg font-medium leading-snug text-gold sm:text-xl">
+            Parce que chaque activiste est un don pour sa communauté.
+          </p>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#F8F5EF]/85 sm:text-lg">
             De nombreuses femmes et filles font progresser leurs communautés par des engagements
             éducatifs, sociaux, humanitaires, entrepreneuriaux, environnementaux, culturels ou
             citoyens. Leurs initiatives restent pourtant souvent peu visibles. Cette plateforme a
@@ -206,12 +211,21 @@ export default async function HomePage() {
               <Link href="/proposer">Proposer une personne</Link>
             </Button>
           </div>
+          </div>
+          <Image
+            src="/logo-dora-blanc.png"
+            alt="Logo Dora : deux silhouettes enlacées, une main protectrice au cœur"
+            width={1522}
+            height={505}
+            priority
+            className="hidden h-auto w-[300px] shrink-0 self-center lg:block xl:w-[360px]"
+          />
         </div>
       </section>
 
-      {/* L'acronyme DORA — identité du nom (décision client : Distinguer,
-          Oser, Reconnaître, Agir). Initiales en or sur cartes, style cohérent
-          avec le reste de la page. */}
+      {/* L'acronyme DORA — identité du nom (décision client : Dignité,
+          Optimisme, Résilience, Action). Initiales en or sur cartes, style
+          cohérent avec le reste de la page. */}
       <section
         aria-labelledby="acronyme"
         className="mx-auto w-full max-w-6xl px-4 pt-14 sm:px-6 sm:pt-20"
@@ -235,11 +249,11 @@ export default async function HomePage() {
               D
             </span>
             <h3 className="mt-3 font-display text-base font-semibold text-foreground">
-              Distinguer
+              Dignité
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Repérer et documenter des parcours d&apos;engagement, souvent discrets, avec rigueur
-              et preuves.
+              Accueillir chaque personne avec respect : consentement libre et éclairé, protections
+              renforcées pour les mineures, maîtrise de ses informations à tout moment.
             </p>
           </li>
           <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
@@ -249,10 +263,10 @@ export default async function HomePage() {
             >
               O
             </span>
-            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Oser</h3>
+            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Optimisme</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Offrir à chaque personne invitée un espace sécurisé pour raconter librement son
-              histoire.
+              Croire en la force des communautés et en des exemples concrets qui donnent envie de
+              s&apos;engager à son tour.
             </p>
           </li>
           <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
@@ -263,10 +277,11 @@ export default async function HomePage() {
               R
             </span>
             <h3 className="mt-3 font-display text-base font-semibold text-foreground">
-              Reconnaître
+              Résilience
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Examiner puis publier chaque parcours avec honnêteté, exigence et consentement.
+              Honorer la persévérance : la durée et la régularité de l&apos;engagement priment sur
+              l&apos;éclat d&apos;un instant.
             </p>
           </li>
           <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
@@ -276,9 +291,9 @@ export default async function HomePage() {
             >
               A
             </span>
-            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Agir</h3>
+            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Action</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Transmettre les apprentissages pour inspirer d&apos;autres engagements durables.
+              Valoriser des réalisations concrètes et observables qui répondent à de vrais besoins.
             </p>
           </li>
         </ul>

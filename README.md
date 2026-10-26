@@ -1,6 +1,7 @@
 # Dora
 
-**Dora = Distinguer, Oser, Reconnaître, Agir.**
+**Dora = Dignité, Optimisme, Résilience, Action.**
+*Parce que chaque activiste est un don pour sa communauté.*
 
 Plateforme web de valorisation des femmes et des filles engagées dans des actions sociales, éducatives, humanitaires, environnementales et citoyennes (cadre : loi n° 2019-014 portant IPDCP au Togo). Les parcours des hommes engagés y sont également accueillis.
 

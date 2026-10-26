@@ -316,3 +316,21 @@ Work Log:
 
 Stage Summary:
 - L'acronyme DORA est désormais l'identité visible de la plateforme : en-tête (logo D + sous-ligne), accueil (section dédiée), pied de page, métadonnées SEO et README. Aucun changement fonctionnel ni de données.
+---
+Task ID: 7-4
+Agent: Z.ai (orchestrateur)
+Task: Identité de marque définitive — DORA = Dignité, Optimisme, Résilience, Action + logo officiel fourni
+
+Work Log:
+- 4 fichiers logo reçus (upload/1-4.png, 2000x2000, fonds solides sans alpha). Constat : 1.png porte l'ANCIENNE devise gravée (« Distinguer Oser Reconnaître Agir ») → non utilisé en l'état ; les variantes sans devise (2: symbole+Dora ivoire, 3: blanc sur vert, 4: symbole seul) sont exploitées, la devise étant rendue en HTML.
+- Détourage par chroma-key (sharp, script ad hoc, seuil doux 20/64) sur la couleur de coin → transparence propre, contre-formes des lettres ouvertes ; contrôle visuel sur fond rouge (tool-results/ctrl-*.png) : bords nets sans halo.
+- Actifs produits : public/logo-dora-symbole.png (1074x1086), public/logo-dora.png (1522x503), public/logo-dora-blanc.png (1522x505), public/logo-dora-symbole-160.png (13 Ko, usage en-tête), src/app/icon.png (512, favicon auto Next), public/og-dora.png (1200x630, fond pine + logo blanc centré).
+- En-tête : « D » texte remplacé par le symbole réel (next/image 40px, aria-hidden, priority) + sous-ligne « Dignité · Optimisme · Résilience · Action » (md+) + aria-label mis à jour.
+- Hero accueil : signature en or « Parce que chaque activiste est un don pour sa communauté. » sous le slogan + logo blanc détouré à droite (lg+, grid flex) ; structure réparée après une édition mal placée (boutons replacés dans la colonne texte, fermetures doubles supprimées).
+- Section accueil : 4 cartes reformulées — Dignité (respect, consentement libre et éclairé, protections mineures, maîtrise des informations), Optimisme (force des communautés, exemples inspirants), Résilience (durée et régularité priment sur l'éclat), Action (réalisations concrètes et observables).
+- Footer : sous-ligne acronyme remplacée. Metadata : description « Dora — Dignité, Optimisme, Résilience, Action. Parce que chaque activiste est un don pour sa communauté. … » + openGraph site-wide (og-dora.png 1200x630). README : acronyme + signature.
+- Corrections techniques : import next/image manquant dans page.tsx (conflit avec Image DOM global → 500) résolu.
+- Vérifications : lint 0 erreur ; tsc propre ; accueil 200 ; og:image/og:description corrects dans le HTML ; favicon /icon.png référencé ; navigateur desktop (captures brand-hero-desktop.png, brand-acronyme-desktop.png) et mobile iPhone 14 sans débordement (brand-mobile.png) ; 0 erreur console.
+
+Stage Summary:
+- Identité visuelle complète : logo officiel intégré (en-tête, hero, favicon, OG), acronyme définitif Dignité/Optimisme/Résilience/Action partout, signature en or sur le hero. 1.png à régénérer un jour avec la nouvelle devise pour un usage print (pas bloquant — devise rendue en texte web).

@@ -36,7 +36,19 @@ export const metadata: Metadata = {
     template: `%s — ${siteName}`,
   },
   description:
-    "Dora — Distinguer, Oser, Reconnaître, Agir. Plateforme de valorisation des femmes et des filles engagées : documenter, reconnaître et transmettre les parcours qui font avancer les communautés. Les parcours des hommes engagés y sont également accueillis.",
+    "Dora — Dignité, Optimisme, Résilience, Action. Parce que chaque activiste est un don pour sa communauté. Valorisation des parcours d'engagement : femmes et filles au premier plan, hommes également accueillis.",
+  openGraph: {
+    type: "website",
+    siteName,
+    images: [
+      {
+        url: "/og-dora.png",
+        width: 1200,
+        height: 630,
+        alt: "Dora — Dignité, Optimisme, Résilience, Action",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

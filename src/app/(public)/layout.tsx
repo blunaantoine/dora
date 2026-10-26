@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const siteName =
   process.env.SITE_NAME?.trim() ||
@@ -16,20 +17,23 @@ export default function PublicLayout({
           <Link
             href="/"
             className="flex min-w-0 items-center gap-2.5 rounded-md focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-            aria-label={`${siteName} — Distinguer, Oser, Reconnaître, Agir — retour à l'accueil`}
+            aria-label={`${siteName} — Dignité, Optimisme, Résilience, Action — retour à l'accueil`}
           >
-            <span
+            <Image
+              src="/logo-dora-symbole-160.png"
+              alt=""
               aria-hidden="true"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-pine font-display text-sm font-semibold text-[#F8F5EF]"
-            >
-              <span className="text-gold">D</span>
-            </span>
+              width={40}
+              height={40}
+              priority
+              className="size-10 shrink-0"
+            />
             <span className="min-w-0">
               <span className="block truncate font-display text-base leading-tight font-semibold text-foreground sm:text-lg">
                 {siteName}
               </span>
               <span className="hidden text-[11px] leading-tight tracking-wide text-muted-foreground md:block">
-                Distinguer · Oser · Reconnaître · Agir
+                Dignité · Optimisme · Résilience · Action
               </span>
             </span>
           </Link>
@@ -58,7 +62,7 @@ export default function PublicLayout({
             <div className="max-w-sm">
               <p className="font-display text-base font-semibold text-foreground">{siteName}</p>
               <p className="mt-1 text-xs font-medium tracking-wide text-gold">
-                Distinguer · Oser · Reconnaître · Agir
+                Dignité · Optimisme · Résilience · Action
               </p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Un espace de reconnaissance, de transmission d&apos;expériences et de découverte de
