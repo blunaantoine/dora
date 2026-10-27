@@ -350,3 +350,25 @@ Work Log:
 - Admin : page /admin/a-lhonneur (garde PUBLISH_PROFILES, sinon redirect) + featured-manager.tsx (liste ordonnée 1..n, boutons monter/descendre/retirer, combobox d'ajout parmi les publiés, encart explicatif « Choix éditorial, pas une notation », bouton Enregistrer actif seulement si modifié, toasts). Lien « À l'honneur » (Star) dans la nav admin pour PUBLISH_PROFILES. Panneau publication : switch « featured » remplacé par un bloc d'état + lien vers la gestion (plusieurs sources de vérité évitées).
 - Vérifications E2E (3 profils de test « [TEST] » créés puis intégralement supprimés, base propre 0 PUBLISHED / 0 featured) : autoplay confirmé en navigateur (Beta→Alpha après 5 s sans interaction), flèche suivant / dot n°3 / pause-reprise (aria-pressed), lien actif → /profils/test-honneur-beta, admin : réordonnement Alpha→1 enregistré (toast + persistance après reload), journal d'audit FEATURED_ORDER_UPDATED présent. Captures tool-results/carrousel-desktop.png et carrousel-mobile.png (iPhone 14 : pas de débordement horizontal). État vide : logo + bande D-O-R-A confirmés. lint 0 erreur ; tsc propre ; accueil/annuaire/proposer 200 ; 0 erreur console.
 - Correction en route : PUT attendait un tableau nu alors que le client envoie {order} → putSchema z.object ; erreur repérée par le test curl, corrigée et retestée.
+
+---
+Task ID: 7-4
+Agent: Z.ai (orchestrateur)
+Task: Maquette utilisée à l'identique — carrousel « Top 5 des parcours » (badges 1er/2e/3e, vitesse réglable 2–10 s), harmonisation admin/API, données de démonstration
+
+Work Log:
+- Demande client : « je veux utiliser la maquette à l'identique » — reprise de la maquette carrousel telle quelle (titre « Top 5 des parcours », badges de rang), abandon des libellés « À l'honneur / Coup de cœur n°X ».
+- honored-carousel.tsx réécrit : titre or « Top 5 des parcours », badges « 1er » (bg-gold), « 2e » (argent #C9CDD2), « 3e » (bronze #C08A52), « 4e »/« 5e » neutres ; carte = emplacement photo vide (initiale Fraunces), domaine, nom, lien « Voir son parcours » ; points par rang, flèches, bouton pause conservés.
+- Vitesse réglable 2–10 s (onglet « Tweaks » de la maquette) : combobox accessible dans la barre de commandes (options 2–10 s, défaut 4 s), persistance localStorage (dora:carousel-interval-ms) via store externe useSyncExternalStore (conforme règle lint react-hooks/set-state-in-effect, zéro setState en effet).
+- Accessibilité conservée : pause WCAG 2.2.2 (pause au survol/focus + bouton), prefers-reduced-motion, annonces polies, cartes inactives inertes.
+- Harmonisation libellés « Top 5 des parcours » partout : page admin a-lhonneur (h1 + metadata), featured-manager.tsx (encart, toast, boutons), admin-shell.tsx (nav « Top 5 »), publication-panel.tsx (liens « Gérer/ajouter au Top 5 »), API /api/admin/featured (messages), commentaires publication/route.ts, README.md.
+- Données de démonstration : scripts/seed-top5-demo.ts idempotent (bun scripts/seed-top5-demo.ts) — 5 catégories, 5 parcours publiés (dont 2 hommes, conformément à l'ouverture du genre), slugs demo-*, sans photo (emplacement vide comme la maquette), featuredRank 1..5. Exécuté avec succès.
+- Incident sandbox : .env tronqué (.env.local supprimé) → NEXTAUTH_URL/NO_SECRET → login admin impossible. Restauré (DATABASE_URL, NEXTAUTH_URL, NEXTAUTH_SECRET régénéré, SITE_NAME=Dora), serveur relancé via .zscripts/dev.sh.
+- Vérification E2E agent-browser : autoplay 4 s confirmé (avance de carte observée), pause figée 5 s, vitesse 2 s (avances ~2 s + localStorage=2000), flèche suivante, point « Aller au rang 1er », badges 1er-or/2e-argent/3e-bronze/4e/5e-neutre vérifiés au DOM, fiche /profils/demo-afi-adjavi OK (Biographie, Parcours, Motivation, Leçons), admin Top 5 : montée de Kossi Mensah au rang 1 répercutée sur l'accueil puis retour Afi Adjavi rang 1. Captures : top5-desktop-hero.png, top5-mobile-carousel.png, top5-mobile-hero.png, top5-final-desktop.png. Aucune erreur console.
+- Lint ✓ ; commit 2e37f56 poussé sur github.com/blunaantoine/dora (main).
+
+Stage Summary:
+- La maquette carrousel est désormais reproduite à l'identique côté public, avec réglage de vitesse 2–10 s mémorisé par visiteur ; le mécanisme reste un choix éditorial (featuredRank), aucune notation n'existe dans l'application.
+- Espace équipe renommé « Top 5 des parcours » (admin + API + README), cohérence totale des libellés.
+- Données de démonstration réalistes en place pour visualiser la maquette ; suppression possible d'un clic dans l'admin ou en rejouant le seed (idempotent).
+- Prochaines étapes connues : phase 8 VPS LWS (accès à fournir), domaine réel, e-mail transactionnel (reporté).
