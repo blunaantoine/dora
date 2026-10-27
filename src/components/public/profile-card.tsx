@@ -12,7 +12,7 @@ export function ProfileCard({ profile }: { profile: PublicCardView }) {
   const initial = profile.publicName.trim().charAt(0).toUpperCase() || "•";
 
   return (
-    <article className="h-full overflow-hidden rounded-xl border border-border bg-card shadow-xs transition-shadow hover:shadow-sm">
+    <article className="group h-full overflow-hidden rounded-2xl border border-border bg-card transition-[box-shadow,border-color] hover:border-[#CFC7B2] hover:shadow-md">
       <Link
         href={`/profils/${profile.slug}`}
         className="flex h-full min-h-44 flex-col focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
@@ -30,32 +30,32 @@ export function ProfileCard({ profile }: { profile: PublicCardView }) {
             height={profile.photo.height ?? 300}
             loading="lazy"
             decoding="async"
-            className="h-40 w-full border-b border-border object-cover"
+            className="aspect-[4/3] w-full border-b border-border object-cover"
           />
         ) : (
           <span
             aria-hidden="true"
-            className="flex h-40 w-full items-center justify-center border-b border-border bg-pine font-display text-4xl font-semibold text-[#F8F5EF]"
+            className="flex aspect-[4/3] w-full items-center justify-center border-b border-border bg-pine-soft font-display text-6xl font-semibold text-gold-soft"
           >
             {initial}
           </span>
         )}
 
-        <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
           <div className="min-w-0">
-            <h3 className="truncate font-display text-lg font-semibold text-foreground">
-              {profile.publicName}
-            </h3>
             {profile.categoryName ? (
-              <p className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-full bg-pine px-2.5 py-0.5 text-xs font-medium text-[#F8F5EF]">
-                <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-gold" />
+              <p className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[13px] font-medium text-accent-foreground">
+                <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-[#B08A35]" />
                 <span className="truncate">{profile.categoryName}</span>
               </p>
             ) : null}
+            <h3 className="mt-2.5 truncate font-display text-xl font-semibold text-foreground group-hover:underline group-hover:decoration-gold group-hover:underline-offset-4">
+              {profile.publicName}
+            </h3>
           </div>
 
           {profile.shortPresentation ? (
-            <p className="line-clamp-4 text-sm leading-relaxed text-muted-foreground">
+            <p className="line-clamp-3 text-[15px] leading-relaxed text-muted-foreground">
               {profile.shortPresentation}
             </p>
           ) : (

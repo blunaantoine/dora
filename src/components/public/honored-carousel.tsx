@@ -6,10 +6,8 @@
 // Comportement (maquette client, reprise à l'identique) :
 //   • défilement automatique toutes les 4 secondes par défaut, avec fondu
 //     enchaîné ;
-//   • vitesse réglable de 2 à 10 secondes (onglet « Tweaks » de la maquette) —
-//     le réglage du visiteur est mémorisé localement (localStorage) ;
-//   • badge de rang sur chaque carte : « 1er » (or), « 2e » (argent),
-//     « 3e » (bronze), « 4e »/« 5e » (neutre). Le classement est un choix
+//   • badge de rang sur chaque carte : « 1re place » (or), « 2e place »
+//     (argent), « 3e place » (bronze), « 4e »/« 5e place » (neutre). Le classement est un choix
 //     éditorial de l'équipe (featuredRank), pas une notation : la plateforme
 //     n'a ni notes, ni popularité, ni nombre de vues ;
 //   • chaque carte : photo (ou emplacement réservé avec initiale), domaine
@@ -34,73 +32,12 @@ import {
   useSyncExternalStore,
 } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play, Timer } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play, Trophy } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-/** Intervalle par défaut (maquette : 4 s). */
+/** Intervalle du défilement automatique (maquette : 4 s). */
 const AUTOPLAY_MS = 4000;
-/** Bornes documentées dans la maquette (onglet « Tweaks ») : 2 à 10 secondes. */
-export const AUTOPLAY_MIN_MS = 2000;
-export const AUTOPLAY_MAX_MS = 10000;
-/** Paliers proposés au réglage (secondes). */
-const SPEED_OPTIONS_MS = [2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000] as const;
-
-const STORAGE_KEY = "dora:carousel-interval-ms";
-
-// --- Store local de la vitesse (maquette « Tweaks ») --------------------------
-// La valeur choisie est mémorisée dans localStorage et exposée via
-// useSyncExternalStore : lecture sans état local, aucun setState dans un
-// effet, et écart serveur/client géré proprement par React (4 s côté
-// serveur, préférence mémorisée adoptée dès l'hydratation).
-let speedCache: number | null = null;
-const speedListeners = new Set<() => void>();
-
-function readStoredSpeed(): number {
-  if (speedCache !== null) return speedCache;
-  let value = AUTOPLAY_MS;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = Number(raw);
-      if (Number.isInteger(parsed) && parsed >= AUTOPLAY_MIN_MS && parsed <= AUTOPLAY_MAX_MS) {
-        value = parsed;
-      }
-    }
-  } catch {
-    // Stockage indisponible (navigation privée stricte) : défaut 4 s.
-  }
-  speedCache = value;
-  return value;
-}
-
-function subscribeSpeed(onChange: () => void): () => void {
-  speedListeners.add(onChange);
-  return () => {
-    speedListeners.delete(onChange);
-  };
-}
-
-function getServerSpeed(): number {
-  return AUTOPLAY_MS;
-}
-
-function writeSpeed(value: number): void {
-  speedCache = value;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, String(value));
-  } catch {
-    // Stockage indisponible : le réglage reste actif pour la session.
-  }
-  for (const listener of speedListeners) listener();
-}
 
 export interface HonoredCarouselItem {
   slug: string;
@@ -116,17 +53,17 @@ export interface HonoredCarouselItem {
   } | null;
 }
 
-/** Libellé de rang : 1er pour la première place, 2e/3e/4e/5e ensuite. */
+/** Libellé de rang : « 1re place », « 2e place »… (accord avec « place »). */
 function rankLabel(rank: number): string {
-  return rank === 1 ? "1er" : `${rank}e`;
+  return rank === 1 ? "1re place" : `${rank}e place`;
 }
 
 /** Badges de rang : 1re place or, 2e argent, 3e bronze, suivantes neutres. */
 function badgeStyle(rank: number): string {
   if (rank === 1) return "bg-gold text-pine-deep";
-  if (rank === 2) return "bg-[#C9CDD2] text-[#202522]";
-  if (rank === 3) return "bg-[#C08A52] text-white";
-  return "bg-pine-deep/85 text-[#F8F5EF]";
+  if (rank === 2) return "bg-[#DCD8CE] text-pine-deep";
+  if (rank === 3) return "bg-[#D9A27A] text-pine-deep";
+  return "bg-gold-soft text-pine-deep";
 }
 
 // Préférence système « moins de mouvement » — stock externe (aucun setState
@@ -148,10 +85,6 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [announce, setAnnounce] = useState("");
-  // Vitesse du défilement (maquette « Tweaks » : 2 à 10 s, mémorisée
-  // localement). Côté serveur : 4 s — la préférence est appliquée dès
-  // l'hydratation sans écart de rendu.
-  const intervalMs = useSyncExternalStore(subscribeSpeed, readStoredSpeed, getServerSpeed);
   // Miroir de l'index pour les handlers (lu hors rendu uniquement).
   const indexRef = useRef(0);
   useEffect(() => {
@@ -159,15 +92,9 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
   }, [index]);
   const baseId = useId();
 
-  const handleSpeedChange = useCallback((value: string) => {
-    const parsed = Number(value);
-    if (!Number.isInteger(parsed) || parsed < AUTOPLAY_MIN_MS || parsed > AUTOPLAY_MAX_MS) return;
-    writeSpeed(parsed);
-  }, []);
-
   // Défilement automatique : suspendu si l'utilisateur met en pause, survole
   // la zone, y donne le focus clavier, si l'onglet est caché, ou si le
-  // système demande moins de mouvement. Changer la vitesse relance le compte.
+  // système demande moins de mouvement.
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotionSnapshot,
@@ -183,9 +110,9 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
       // Onglet caché : ne fait rien (reprendra au retour sans sauter).
       if (typeof document !== "undefined" && document.hidden) return;
       setIndex((current) => (current + 1) % count);
-    }, intervalMs);
+    }, AUTOPLAY_MS);
     return () => clearInterval(timer);
-  }, [running, count, intervalMs]);
+  }, [running, count]);
 
   const goTo = useCallback(
     (target: number) => {
@@ -193,7 +120,7 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
       const item = items[target % count];
       if (item) {
         setAnnounce(
-          `Top 5 des parcours — rang ${rankLabel(item.rank)} sur ${count} : ${item.publicName}.`,
+          `Top 5 des parcours — ${rankLabel(item.rank)} sur ${count} : ${item.publicName}.`,
         );
       }
     },
@@ -228,132 +155,130 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
       onBlurCapture={() => setFocused(false)}
       className="w-full"
     >
-      <h2 className="mb-3 font-display text-xl font-semibold text-gold">
-        Top 5 des parcours
-      </h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-gold uppercase">
+          <Trophy aria-hidden="true" className="size-4" />
+          Top 5 des parcours
+        </h2>
+        <p aria-hidden="true" className="text-sm text-[#F8F5EF]/75 tabular-nums">
+          {index + 1} / {count}
+        </p>
+      </div>
 
       <p aria-live="polite" role="status" className="sr-only">
         {announce}
       </p>
 
-      {/* Pile de cartes — toutes en [grid-area:1/1] : la hauteur vaut celle de
-          la plus grande, et le fondu enchaîné se fait par opacité. */}
-      <div className="grid" aria-atomic="false">
-        {items.map((item, position) => {
-          const active = position === index;
-          const initial = item.publicName.trim().charAt(0).toUpperCase() || "•";
-          return (
-            <article
-              key={item.slug}
-              id={`${baseId}-slide-${position}`}
-              aria-hidden={!active}
-              inert={!active}
-              className={cn(
-                "[grid-area:1/1] flex h-full flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white shadow-lg transition-opacity duration-700 ease-in-out",
-                active ? "z-10 opacity-100" : "pointer-events-none select-none opacity-0",
-              )}
-            >
-              {/* Photo ou emplacement réservé (maquette : cadre pine, initiale
-                  en Fraunces — « emplacement photo » volontairement vide tant
-                  que la personne n'a pas transmis de portrait autorisé). La
-                  vraie photo est servie par /api/public/media (visibilité
-                  revalidée à chaque accès). */}
-              <div className="relative h-44 shrink-0 border-b border-border/60 bg-[#22503F]">
-                {item.photo ? (
-                  <img
-                    src={item.photo.url}
-                    alt={item.photo.alt}
-                    width={item.photo.width ?? 400}
-                    height={item.photo.height ?? 300}
-                    loading={position === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    className="flex h-full w-full items-center justify-center font-display text-6xl font-semibold text-[#EAD9AC]"
-                  >
-                    {initial}
-                  </span>
+      {/* Pile de cartes (toutes en [grid-area:1/1]). Fondu SÉQUENTIEL : la
+          carte sortante s'efface (300 ms) avant que l'entrante n'apparaisse
+          (300 ms, après un délai de 300 ms) — jamais deux textes superposés.
+          Un cadre décalé en or donne l'effet de pile de la maquette. */}
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 translate-x-3 translate-y-3 rounded-3xl border border-gold/35"
+        />
+        <div className="relative grid overflow-hidden rounded-3xl bg-pine-deep">
+          {items.map((item, position) => {
+            const active = position === index;
+            const initial = item.publicName.trim().charAt(0).toUpperCase() || "•";
+            return (
+              <article
+                key={item.slug}
+                id={`${baseId}-slide-${position}`}
+                aria-hidden={!active}
+                inert={!active}
+                className={cn(
+                  "[grid-area:1/1] flex flex-col transition-opacity duration-300 ease-in-out motion-reduce:transition-none",
+                  active
+                    ? "z-10 opacity-100 delay-300"
+                    : "pointer-events-none opacity-0 select-none delay-0",
                 )}
-                <span
-                  className={cn(
-                    "absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm",
-                    badgeStyle(item.rank),
+              >
+                {/* Photo publique (servie par /api/public/media, visibilité
+                    revalidée à chaque accès) ou emplacement à initiale. */}
+                <div className="relative aspect-[4/3] bg-pine-soft sm:aspect-[5/4]">
+                  {item.photo ? (
+                    <img
+                      src={item.photo.url}
+                      alt={item.photo.alt}
+                      width={item.photo.width ?? 400}
+                      height={item.photo.height ?? 300}
+                      loading={position === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 flex items-center justify-center font-display text-8xl font-semibold text-gold-soft/90"
+                    >
+                      {initial}
+                    </span>
                   )}
-                >
-                  {rankLabel(item.rank)}
-                </span>
-              </div>
+                  <span
+                    className={cn(
+                      "absolute top-4 left-4 inline-flex items-center gap-2 rounded-full py-1.5 pr-3.5 pl-1.5 text-sm font-bold shadow-md",
+                      badgeStyle(item.rank),
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex size-8 items-center justify-center rounded-full bg-pine-deep font-display text-base text-gold-soft"
+                    >
+                      {item.rank}
+                    </span>
+                    {rankLabel(item.rank)}
+                  </span>
+                </div>
 
-              <div className="flex flex-1 flex-col gap-2.5 p-5">
-                {item.categoryName ? (
-                  <p className="inline-flex w-fit items-center gap-1.5 rounded-full bg-pine px-2.5 py-0.5 text-xs font-medium text-[#F8F5EF]">
-                    <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-gold" />
-                    <span className="truncate">{item.categoryName}</span>
-                  </p>
-                ) : null}
-                <h3 className="truncate font-display text-lg font-semibold text-foreground">
-                  {item.publicName}
-                </h3>
-                <Link
-                  href={`/profils/${item.slug}`}
-                  tabIndex={active ? 0 : -1}
-                  className="mt-auto inline-flex min-h-11 w-fit items-center gap-1.5 rounded-md text-sm font-semibold text-pine underline-offset-4 transition-colors hover:text-pine-deep hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-                >
-                  Voir son parcours
-                  <ArrowRight aria-hidden="true" className="size-4" />
-                </Link>
-              </div>
-            </article>
-          );
-        })}
+                <div className="flex flex-col gap-2 bg-pine-deep px-5 pt-5 pb-5">
+                  {item.categoryName ? (
+                    <p className="truncate text-sm font-medium text-gold-soft">{item.categoryName}</p>
+                  ) : null}
+                  <h3 className="truncate font-display text-2xl leading-tight font-semibold text-[#F8F5EF]">
+                    {item.publicName}
+                  </h3>
+                  <Link
+                    href={`/profils/${item.slug}`}
+                    tabIndex={active ? 0 : -1}
+                    className="mt-1 inline-flex min-h-11 w-fit items-center gap-1.5 rounded-md text-sm font-semibold text-[#F8F5EF]/90 underline-offset-4 transition-colors hover:text-[#F8F5EF] hover:underline focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none"
+                  >
+                    Voir son parcours
+                    <span className="sr-only"> : {item.publicName}</span>
+                    <ArrowRight aria-hidden="true" className="size-4" />
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Commandes : points d'accès direct par rang, réglage de vitesse
-          (maquette « Tweaks »), pause, précédent / suivant. */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <div role="group" aria-label="Accès direct à un rang" className="flex items-center gap-1.5">
+      {/* Commandes : points d'accès direct par rang, pause, précédent / suivant. */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <div role="group" aria-label="Accès direct à un rang" className="flex items-center">
           {items.map((item, position) => (
             <button
               key={item.slug}
               type="button"
               onClick={() => goTo(position)}
-              aria-label={`Aller au rang ${rankLabel(item.rank)} : ${item.publicName}`}
+              aria-label={`Afficher la ${rankLabel(item.rank)} : ${item.publicName}`}
               aria-current={position === index ? "true" : undefined}
-              className={cn(
-                "h-3 rounded-full transition-all focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none",
-                position === index ? "w-6 bg-gold" : "w-3 bg-[#F8F5EF]/35 hover:bg-[#F8F5EF]/60",
-              )}
-            />
+              className="group flex h-11 w-7 items-center justify-center rounded-full focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none"
+            >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "block h-2 rounded-full transition-all",
+                  position === index ? "w-6 bg-gold" : "w-2 bg-[#F8F5EF]/45 group-hover:bg-[#F8F5EF]/70",
+                )}
+              />
+            </button>
           ))}
         </div>
 
         <div role="group" aria-label="Commandes du carrousel" className="flex items-center gap-2">
-          {count > 1 ? (
-            <div className="flex items-center gap-1.5">
-              {/* Vitesse de défilement — équivalent de l'onglet « Tweaks » de
-                  la maquette (2 à 10 s). Le réglage reste disponible même en
-                  pause. */}
-              <Timer aria-hidden="true" className="size-4 text-[#F8F5EF]/70" />
-              <Select value={String(intervalMs)} onValueChange={handleSpeedChange}>
-                <SelectTrigger
-                  aria-label="Vitesse de défilement automatique (2 à 10 secondes)"
-                  className="h-11 w-[84px] rounded-full border-[#F8F5EF]/35 bg-transparent px-3 text-sm text-[#F8F5EF] shadow-none transition-colors hover:bg-[#F8F5EF]/10 focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none data-[state=open]:bg-[#F8F5EF]/10 [&>svg]:size-4 [&>svg]:text-[#F8F5EF]"
-                >
-                  <SelectValue aria-hidden="true" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPEED_OPTIONS_MS.map((option) => (
-                    <SelectItem key={option} value={String(option)}>
-                      {option / 1000} secondes
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
           {count > 1 ? (
             <button
               type="button"
