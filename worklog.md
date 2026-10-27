@@ -372,3 +372,22 @@ Stage Summary:
 - Espace équipe renommé « Top 5 des parcours » (admin + API + README), cohérence totale des libellés.
 - Données de démonstration réalistes en place pour visualiser la maquette ; suppression possible d'un clic dans l'admin ou en rejouant le seed (idempotent).
 - Prochaines étapes connues : phase 8 VPS LWS (accès à fournir), domaine réel, e-mail transactionnel (reporté).
+---
+Task ID: 8-1
+Agent: Z.ai (orchestrateur)
+Task: Preview « n'autorise pas la connexion » — diagnostic, restauration env, correction du conflit de route /
+
+Work Log:
+- Symptôme : le preview refusait la connexion (serveur arrêté après redémarrage du workspace) ; à la relance, l'accueil servait un écran de chargement vide (spinner Z.ai, 24 Ko, aucun contenu).
+- Restauration env (tronqués une fois de plus) : .env (DATABASE_URL, SITE_NAME=Dora) + .env.local (NEXTAUTH_SECRET régénéré, NEXTAUTH_URL) ; serveur relancé proprement via bash .zscripts/dev.sh (kill des doublons EADDRINUSE au préalable).
+- Diagnostic du rendu vide : le HTML streamé ne contenait jamais le contenu de (public)/page.tsx. Cause racine : src/app/page.tsx (scaffold Z.ai d'origine, fichier NON suivi) avait été réintroduit par la restauration du workspace et entrait en CONFLIT DE ROUTE avec src/app/(public)/page.tsx pour « / » ; la route tombait sur le scaffold (spinner) au lieu de la vraie accueil.
+- Correction : suppression de src/app/page.tsx ; l'accueil public est de nouveau servi par (public)/page.tsx (203 Ko, « Top 5 des parcours » présent).
+- Base vérifiée au passage : 17 dossiers, 10 publications, 5 Top 5, 17 catégories (Prisma sain).
+- Accès équipe rétabli : le mot de passe de admin@dora-dev.local était perdu hors contexte ; scripts/create-admin.ts refuse à raison de réinitialiser un compte actif → réinitialisation directe en base (hashPassword scrypt du projet + tokenVersion++), mot de passe dev : Dora-Dev#2026-Togo (ENVIRONNEMENT DE DÉV UNIQUEMENT, à changer avant toute mise en prod).
+- Vérifications E2E agent-browser : accueil rendu (en-tête logo + sous-ligne acronyme, hero + signature or, carrousel Top 5 avec badge « 2e » argent, initiale Fraunces, pill domaine, points, flèches, pause, vitesse 4 s) ; autoplay confirmé (point actif rang 4e → rang 1er en ~5 s) ; /admin/connexion → login OK → tableau de bord (17 dossiers, 5 publiés) ; page admin Top 5 OK ; 0 erreur console ; captures tool-results/restore-accueil-desktop.png et restore-accueil-mobile.png ; iPhone 14 sans débordement horizontal.
+- lint 0 erreur ; commit 90f5a2f poussé (2e37f56..90f5a2f main) : suppression scaffold + commit du boundary d'erreur annuaire (error.tsx resté non suivi lors d'une session antérieure).
+
+Stage Summary:
+- Le preview est de nouveau pleinement opérationnel ; cause profonde identifiée et éliminée (le scaffold ne peut plus réapparaître : suppression versionnée dans git).
+- Accès équipe de dev documenté (admin@dora-dev.local / Dora-Dev#2026-Togo) — ROTATION OBLIGATOIRE avant mise en production.
+- Aucun changement fonctionnel ni de données : l'état livré en 7-4 (maquette carrousel à l'identique) est intact et vérifié.
