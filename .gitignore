@@ -64,3 +64,6 @@ design-ref/
 # Fichiers téléversés par le client (hors dépôt)
 upload/*.zip
 upload/*.txt
+
+# Captures et sorties d'outils des agents (hors dépôt)
+tool-results/

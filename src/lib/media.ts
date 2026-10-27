@@ -20,7 +20,9 @@ export function resolvePrivateMediaPath(storageKey: string): string | null {
   const normalized = path.normalize(storageKey);
   const root = path.normalize(`${PRIVATE_UPLOAD_ROOT}${path.sep}`);
   if (!normalized.startsWith(root)) return null; // refus hors racine (traversée de chemin)
-  return path.join(process.cwd(), normalized);
+  // turbopackIgnore : évite que le traçage du build embarque tout le projet
+  // (y compris la base et les téléversements privés) dans la sortie standalone.
+  return path.join(/*turbopackIgnore: true*/ process.cwd(), normalized);
 }
 
 export type SupportedImageType = "jpeg" | "png" | "webp";

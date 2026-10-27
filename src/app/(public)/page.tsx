@@ -7,7 +7,6 @@ import {
   Eye,
   HandHeart,
   Lightbulb,
-  LockKeyhole,
   MailPlus,
   SearchCheck,
   ShieldCheck,
@@ -95,6 +94,38 @@ const DEMARCHE = [
     titre: "Publication validée",
     texte:
       "Un profil n'est publié qu'après validation administrative et consentement éclairé de la personne — jamais automatiquement.",
+  },
+] as const;
+
+
+// Rendu à la demande : sans cela, Next.js pré-rend l'accueil au build et fige
+// le Top 5, les derniers parcours et les domaines jusqu'au build suivant.
+export const dynamic = "force-dynamic";
+
+const EYEBROW = "text-xs font-semibold tracking-[0.12em] text-[#7A5E22] uppercase";
+const H2 =
+  "mt-2.5 font-display text-3xl leading-tight font-semibold tracking-tight text-foreground sm:text-4xl";
+
+const ACRONYME = [
+  {
+    initiale: "D",
+    mot: "Dignité",
+    texte: "Consentement libre et éclairé, maîtrise de ses informations à tout moment.",
+  },
+  {
+    initiale: "O",
+    mot: "Optimisme",
+    texte: "Des exemples concrets qui donnent envie de s'engager à son tour.",
+  },
+  {
+    initiale: "R",
+    mot: "Résilience",
+    texte: "La durée de l'engagement prime sur l'éclat d'un instant.",
+  },
+  {
+    initiale: "A",
+    mot: "Action",
+    texte: "Des réalisations observables, au service de vrais besoins.",
   },
 ] as const;
 
@@ -227,75 +258,59 @@ export default async function HomePage() {
     .filter((item): item is HonoredCarouselItem => item !== null)
     .sort((a, b) => a.rank - b.rank);
 
+  // Domaines d'engagement actifs — porte d'entrée vers l'annuaire filtré.
+  const categories = await db.category.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+    select: { name: true, slug: true },
+  });
+
   return (
     <>
       {/* Hero — fond vert profond, texte ivoire, accents or (AA respecté :
           l'or n'est utilisé que sur fond vert, jamais pour du texte courant). */}
-      <section className="relative overflow-hidden bg-pine text-[#F8F5EF]">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.14]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 85% 15%, #D6B15E 0, transparent 42%), radial-gradient(circle at 8% 92%, #D6B15E 0, transparent 36%)",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full border border-gold/30 sm:size-96"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-32 -left-16 size-64 rounded-full border border-gold/20 sm:size-80"
-        />
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:flex-row lg:items-center lg:gap-14 lg:py-28">
+      <section className="bg-pine text-[#F8F5EF]">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:flex-row lg:items-center lg:gap-16 lg:py-24">
           <div className="min-w-0 flex-1">
-          <p className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-pine-deep/40 px-3 py-1 text-xs font-medium tracking-wide text-gold">
-            <HandHeart aria-hidden="true" className="size-3.5" />
-            Projet en préparation
-          </p>
-          <h1 className="mt-6 max-w-3xl font-display text-3xl leading-tight font-semibold text-balance sm:text-4xl lg:text-5xl">
-            Celles qui font avancer le monde méritent d&apos;être connues.
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg font-medium leading-snug text-gold sm:text-xl">
-            Parce que chaque activiste est un don pour sa communauté.
-          </p>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#F8F5EF]/85 sm:text-lg">
-            De nombreuses femmes et filles font progresser leurs communautés par des engagements
-            éducatifs, sociaux, humanitaires, entrepreneuriaux, environnementaux, culturels ou
-            citoyens. Leurs initiatives restent pourtant souvent peu visibles. Cette plateforme a
-            pour vocation de documenter, valoriser et transmettre ces parcours — avec rigueur,
-            consentement et protection des personnes. Les parcours des hommes qui s&apos;engagent
-            à leurs côtés y sont également accueillis.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button
-              asChild
-              size="lg"
-              className="bg-gold text-pine-deep shadow-none transition-colors hover:bg-gold-soft focus-visible:ring-gold/50"
-            >
-              <Link href="/profils">
-                Découvrir les parcours
-                <ArrowRight aria-hidden="true" />
-              </Link>
-            </Button>
-            {/* Proposition publique ouverte (§11) : formulaire réel sur
-                /proposer — l'équipe examine chaque proposition (§11.2). */}
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border border-[#F8F5EF]/40 bg-transparent text-[#F8F5EF] shadow-none hover:bg-transparent hover:bg-[#F8F5EF]/10 hover:text-[#F8F5EF] focus-visible:ring-[#F8F5EF]/50"
-            >
-              <Link href="/proposer">Proposer une personne</Link>
-            </Button>
-          </div>
+            <p className="inline-flex items-center gap-2 rounded-full border border-gold/45 px-3.5 py-1.5 text-xs font-medium tracking-wide text-gold">
+              <HandHeart aria-hidden="true" className="size-3.5" />
+              Projet en préparation
+            </p>
+            <h1 className="mt-6 max-w-2xl font-display text-4xl leading-[1.08] font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+              Celles qui font avancer le monde méritent d&apos;être connues.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg font-medium leading-snug text-gold sm:text-xl">
+              Parce que chaque activiste est un don pour sa communauté.
+            </p>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-[#F8F5EF]/85 sm:text-lg">
+              Dora documente et met en lumière les parcours de femmes et de filles engagées — avec
+              leur consentement, et sous leur contrôle. Les hommes qui s&apos;engagent à leurs
+              côtés y sont aussi accueillis.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button
+                asChild
+                size="lg"
+                className="min-h-12 rounded-full bg-gold px-7 text-base text-pine-deep shadow-none transition-colors hover:bg-gold-soft focus-visible:ring-gold/50"
+              >
+                <Link href="/profils">
+                  Découvrir les parcours
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="min-h-12 rounded-full border border-[#F8F5EF]/45 bg-transparent px-7 text-base text-[#F8F5EF] shadow-none hover:bg-[#F8F5EF]/10 hover:text-[#F8F5EF] focus-visible:ring-[#F8F5EF]/50"
+              >
+                <Link href="/proposer">Proposer une personne</Link>
+              </Button>
+            </div>
           </div>
           {honoredItems.length > 0 ? (
-            // Carrousel « Top 5 des parcours » à droite du bandeau (maquette
-            // client, à l'identique) : défilement auto 4 s (vitesse réglable
-            // 2–10 s), fondu, badges 1er or / 2e argent / 3e bronze, points,
-            // flèches, pause. Sur mobile il passe sous le texte (flex-col).
+            // Carrousel « Top 5 des parcours » (choix éditorial, featuredRank) :
+            // à droite du bandeau, sous le texte sur mobile.
             <div className="w-full shrink-0 lg:w-[380px] xl:w-[420px]">
               <HonoredCarousel items={honoredItems} />
             </div>
@@ -313,190 +328,76 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* L'acronyme DORA — bande claire pleine largeur juste sous le bandeau
-          (maquette client). Identité : Dignité, Optimisme, Résilience, Action. */}
-      <section
-        aria-labelledby="acronyme"
-        className="border-b border-border/70 bg-card"
-      >
-        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
-        <h2
-          id="acronyme"
-          className="font-display text-2xl font-semibold text-foreground sm:text-3xl"
-        >
-          Dora, c&apos;est un engagement
+      {/* L'acronyme DORA — bande claire pleine largeur sous le bandeau. */}
+      <section aria-labelledby="acronyme" className="border-b border-border/70 bg-card">
+        <h2 id="acronyme" className="sr-only">
+          Dora, lettre par lettre
         </h2>
-        <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/85">
-          Le nom de la plateforme est une promesse, lettre par lettre :
-        </p>
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
-            <span
-              aria-hidden="true"
-              className="font-display text-4xl leading-none font-semibold text-gold"
-            >
-              D
-            </span>
-            <h3 className="mt-3 font-display text-base font-semibold text-foreground">
-              Dignité
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Accueillir chaque personne avec respect : consentement libre et éclairé, protections
-              renforcées pour les mineures, maîtrise de ses informations à tout moment.
-            </p>
-          </li>
-          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
-            <span
-              aria-hidden="true"
-              className="font-display text-4xl leading-none font-semibold text-gold"
-            >
-              O
-            </span>
-            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Optimisme</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Croire en la force des communautés et en des exemples concrets qui donnent envie de
-              s&apos;engager à son tour.
-            </p>
-          </li>
-          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
-            <span
-              aria-hidden="true"
-              className="font-display text-4xl leading-none font-semibold text-gold"
-            >
-              R
-            </span>
-            <h3 className="mt-3 font-display text-base font-semibold text-foreground">
-              Résilience
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Honorer la persévérance : la durée et la régularité de l&apos;engagement priment sur
-              l&apos;éclat d&apos;un instant.
-            </p>
-          </li>
-          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
-            <span
-              aria-hidden="true"
-              className="font-display text-4xl leading-none font-semibold text-gold"
-            >
-              A
-            </span>
-            <h3 className="mt-3 font-display text-base font-semibold text-foreground">Action</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Valoriser des réalisations concrètes et observables qui répondent à de vrais besoins.
-            </p>
-          </li>
-        </ul>
-        </div>
-      </section>
-
-      {/* Notre mission */}
-      <section aria-labelledby="mission" className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-        <h2 id="mission" className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
-          Notre mission
-        </h2>
-        <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
-        <div className="mt-6 grid gap-6 lg:grid-cols-3">
-          <p className="text-base leading-relaxed text-foreground/90 lg:col-span-2">
-            Dépasser le simple répertoire de personnes : la plateforme doit devenir un espace de
-            <strong className="font-semibold"> reconnaissance</strong>, de
-            <strong className="font-semibold"> transmission d&apos;expériences </strong>
-            et de <strong className="font-semibold">découverte de parcours inspirants</strong>.
-            Chaque profil présenté ici a été identifié, invité et examiné par l&apos;équipe, puis
-            publié avec le consentement de la personne concernée. La qualité et l&apos;impact
-            d&apos;un engagement priment toujours sur la popularité en ligne.
-          </p>
-          <ul className="grid gap-3 text-sm text-foreground/85">
-            <li className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-              <ShieldCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-pine" />
-              <span>
-                Aucune information privée n&apos;apparaît dans les pages publiques ; les profils de
-                mineures bénéficient de protections renforcées.
-              </span>
-            </li>
-            <li className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-              <LockKeyhole aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-pine" />
-              <span>
-                Les informations fournies ne sont jamais publiées automatiquement : chaque
-                publication est une décision validée.
-              </span>
-            </li>
-            <li className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-              <HandHeart aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-pine" />
-              <span>
-                Les personnes concernées peuvent demander une correction ou le retrait de leurs
-                informations à tout moment.
-              </span>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      {/* Critères de valorisation */}
-      <section
-        aria-labelledby="criteres"
-        className="border-y border-border/70 bg-muted/45"
-      >
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <h2 id="criteres" className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
-            Nos critères de valorisation
-          </h2>
-          <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/85">
-            La valorisation ne repose ni sur les notes, ni sur la popularité, ni sur le nombre de
-            vues. Elle s&apos;appuie sur des critères publics, explicables et vérifiables :
-          </p>
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {CRITERES.map((critere) => (
-              <li
-                key={critere.titre}
-                className="rounded-xl border border-border bg-card p-5 shadow-xs transition-shadow hover:shadow-sm"
+        <ul className="mx-auto grid w-full max-w-6xl gap-x-8 px-4 py-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+          {ACRONYME.map((lettre) => (
+            <li key={lettre.mot} className="flex items-baseline gap-4 py-5">
+              <span
+                aria-hidden="true"
+                className="font-display text-4xl leading-none font-semibold text-[#9A7628]"
               >
-                <critere.icon aria-hidden="true" className="size-6 text-pine" />
-                <h3 className="mt-3 font-display text-base font-semibold text-foreground">
-                  {critere.titre}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{critere.texte}</p>
+                {lettre.initiale}
+              </span>
+              <span>
+                <strong className="block font-display text-lg font-semibold text-foreground">
+                  {lettre.mot}
+                </strong>
+                <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                  {lettre.texte}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Explorer par domaine — liens directs vers l'annuaire filtré. */}
+      {categories.length > 0 ? (
+        <section aria-labelledby="domaines" className="mx-auto w-full max-w-6xl px-4 pt-16 sm:px-6 sm:pt-24">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className={EYEBROW}>Explorer par domaine</p>
+              <h2 id="domaines" className={H2}>
+                Des engagements dans tous les domaines
+              </h2>
+            </div>
+            <Link
+              href="/profils"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-md text-[15px] font-semibold text-pine underline-offset-4 hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+            >
+              Voir l&apos;annuaire complet
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          </div>
+          <ul className="mt-8 flex flex-wrap gap-2.5">
+            {categories.map((categorie) => (
+              <li key={categorie.slug}>
+                <Link
+                  href={`/profils?categorie=${encodeURIComponent(categorie.slug)}`}
+                  className="inline-flex min-h-11 items-center rounded-full border border-[#D9D2BF] bg-card px-4 text-[15px] font-medium text-foreground transition-colors hover:border-pine hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                >
+                  {categorie.name}
+                </Link>
               </li>
             ))}
           </ul>
-        </div>
-      </section>
-
-      {/* Notre démarche */}
-      <section aria-labelledby="demarche" className="mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-        <h2 id="demarche" className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
-          Notre démarche
-        </h2>
-        <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
-        <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {DEMARCHE.map((etape) => (
-            <li key={etape.etape} className="relative rounded-xl border border-border bg-card p-5">
-              <span
-                aria-hidden="true"
-                className="flex size-8 items-center justify-center rounded-full bg-pine font-display text-sm font-semibold text-gold"
-              >
-                {etape.etape}
-              </span>
-              <h3 className="mt-3 font-display text-base font-semibold text-foreground">
-                {etape.titre}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{etape.texte}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+        </section>
+      ) : null}
 
       {/* Derniers parcours publiés (§4.1) — données réelles ou état vide honnête. */}
-      <section aria-labelledby="derniers-parcours" className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
-        <h2 id="derniers-parcours" className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
+      <section aria-labelledby="derniers-parcours" className="mx-auto w-full max-w-6xl px-4 pt-16 sm:px-6 sm:pt-24">
+        <p className={EYEBROW}>À la une</p>
+        <h2 id="derniers-parcours" className={H2}>
           Derniers parcours publiés
         </h2>
-        <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
 
         {latestProfiles.length > 0 ? (
           <>
-            <ul className="mt-8 grid list-none gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
               {latestProfiles.map((profile) => (
                 <li key={profile.slug} className="h-full">
                   <ProfileCard profile={profile} />
@@ -504,7 +405,7 @@ export default async function HomePage() {
               ))}
             </ul>
             <div className="mt-8">
-              <Button asChild variant="outline" className="min-h-11 border-pine text-pine hover:bg-accent hover:text-pine">
+              <Button asChild variant="outline" className="min-h-11 rounded-full border-pine px-5 text-pine hover:bg-accent hover:text-pine">
                 <Link href="/profils">
                   Découvrir tous les parcours
                   <ArrowRight aria-hidden="true" />
@@ -513,22 +414,122 @@ export default async function HomePage() {
             </div>
           </>
         ) : (
-          <div className="mt-8 rounded-xl border border-gold/50 bg-card p-6 sm:p-8">
+          <div className="mt-8 rounded-2xl border border-dashed border-[#CFC7B2] bg-card p-6 sm:p-8">
             <p className="flex items-start gap-3 text-sm leading-relaxed text-foreground/85 sm:text-base">
               <Users aria-hidden="true" className="mt-1 size-5 shrink-0 text-pine" />
               Les premiers parcours seront publiés prochainement, à mesure que les dossiers auront
               été examinés et validés avec le consentement des personnes concernées.
             </p>
-            <div className="mt-5">
-              <Button asChild variant="outline" className="min-h-11 border-pine text-pine hover:bg-accent hover:text-pine">
-                <Link href="/profils">
-                  Découvrir les parcours
-                  <ArrowRight aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
           </div>
         )}
+      </section>
+
+      {/* Notre démarche — frise en 4 étapes. */}
+      <section
+        id="demarche"
+        aria-labelledby="demarche-titre"
+        className="mx-auto w-full max-w-6xl scroll-mt-24 px-4 pt-16 sm:px-6 sm:pt-28"
+      >
+        <p className={EYEBROW}>Notre démarche</p>
+        <h2 id="demarche-titre" className={`${H2} max-w-2xl`}>
+          De l&apos;identification à la publication, quatre étapes
+        </h2>
+        <ol className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {DEMARCHE.map((etape) => (
+            <li key={etape.etape} className="border-t-2 border-pine pt-5">
+              <span
+                aria-hidden="true"
+                className="flex size-10 items-center justify-center rounded-full bg-pine font-display text-lg font-semibold text-gold"
+              >
+                {etape.etape}
+              </span>
+              <h3 className="mt-4 font-display text-xl font-semibold text-foreground">
+                <span className="sr-only">Étape {etape.etape} : </span>
+                {etape.titre}
+              </h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{etape.texte}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Critères de valorisation — liste numérotée éditoriale. */}
+      <section
+        id="criteres"
+        aria-labelledby="criteres-titre"
+        className="mt-16 scroll-mt-24 border-y border-border/70 bg-muted sm:mt-28"
+      >
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:flex-row lg:gap-20">
+          <div className="lg:w-80 lg:shrink-0">
+            <p className={EYEBROW}>Nos critères</p>
+            <h2 id="criteres-titre" className={H2}>
+              Ni notes, ni popularité.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-foreground/80 sm:text-lg">
+              La valorisation s&apos;appuie sur des critères publics, explicables et vérifiables —
+              jamais sur le nombre de vues.
+            </p>
+          </div>
+          <ol className="grid flex-1 gap-x-10 sm:grid-cols-2">
+            {CRITERES.map((critere, position) => (
+              <li key={critere.titre} className="flex gap-4 border-b border-[#D9D2BF] py-5">
+                <span
+                  aria-hidden="true"
+                  className="pt-0.5 font-display text-[15px] font-semibold text-[#7A5E22] tabular-nums"
+                >
+                  {String(position + 1).padStart(2, "0")}
+                </span>
+                <span>
+                  <strong className="block font-display text-lg font-semibold text-foreground">
+                    {critere.titre}
+                  </strong>
+                  <span className="mt-1.5 block text-[15px] leading-relaxed text-muted-foreground">
+                    {critere.texte}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Notre mission */}
+      <section aria-labelledby="mission" className="mx-auto w-full max-w-6xl px-4 pt-16 sm:px-6 sm:pt-24">
+        <p className={EYEBROW}>Notre mission</p>
+        <h2 id="mission" className={`${H2} max-w-3xl`}>
+          Un espace de reconnaissance, de transmission et de découverte
+        </h2>
+        <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/85 sm:text-lg">
+          Chaque profil présenté ici a été identifié, invité et examiné par l&apos;équipe, puis
+          publié avec le consentement de la personne concernée. La qualité et l&apos;impact
+          d&apos;un engagement priment toujours sur la popularité en ligne. Les profils de mineures
+          bénéficient de protections renforcées.
+        </p>
+      </section>
+
+      {/* Appel à proposer une personne. */}
+      <section aria-labelledby="proposer-titre" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="flex flex-col gap-8 rounded-3xl bg-pine px-6 py-10 text-[#F8F5EF] sm:px-12 sm:py-14 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl">
+            <h2 id="proposer-titre" className="font-display text-3xl leading-tight font-semibold sm:text-4xl">
+              Vous connaissez une personne engagée ?
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-[#F8F5EF]/85 sm:text-lg">
+              Proposez son parcours. L&apos;équipe l&apos;examine, puis la contacte par une
+              invitation privée — rien n&apos;est publié sans son accord.
+            </p>
+          </div>
+          <Button
+            asChild
+            size="lg"
+            className="min-h-12 shrink-0 self-start rounded-full bg-gold px-7 text-base text-pine-deep shadow-none hover:bg-gold-soft focus-visible:ring-gold/50 lg:self-center"
+          >
+            <Link href="/proposer">
+              <MailPlus aria-hidden="true" />
+              Proposer une personne
+            </Link>
+          </Button>
+        </div>
       </section>
     </>
   );

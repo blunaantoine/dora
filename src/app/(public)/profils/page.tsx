@@ -71,62 +71,92 @@ export default async function ProfilsPage({
     select: { name: true, slug: true },
   });
 
+  const chipBase =
+    "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none";
+  const chipOn = `${chipBase} border-pine bg-pine text-[#F8F5EF]`;
+  const chipOff = `${chipBase} border-[#D9D2BF] bg-card text-foreground hover:border-pine hover:bg-accent`;
+  const chipHref = (slug: string) => {
+    const params = new URLSearchParams();
+    if (filters.q) params.set("q", filters.q);
+    if (slug) params.set("categorie", slug);
+    const query = params.toString();
+    return query ? `/profils?${query}` : "/profils";
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <header>
-        <h1 className="font-display text-3xl font-semibold text-foreground sm:text-4xl">
-          Annuaire des parcours
+        <p className="text-xs font-semibold tracking-[0.12em] text-[#7A5E22] uppercase">Annuaire</p>
+        <h1 className="mt-2.5 font-display text-4xl leading-tight font-semibold tracking-tight text-foreground sm:text-5xl">
+          Les parcours
         </h1>
-        <div className="mt-4 h-1 w-14 rounded-full bg-gold" aria-hidden="true" />
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/85">
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/80 sm:text-lg">
           Les profils présentés ici ont été identifiés, invités, examinés puis publiés avec le
           consentement des personnes concernées.
         </p>
       </header>
 
-      {/* Filtres — formulaire GET natif : fonctionne sans JavaScript. */}
+      {/* Recherche — formulaire GET natif : fonctionne sans JavaScript. Le
+          domaine choisi via les puces ci-dessous est conservé (champ caché). */}
       <form
         method="get"
         action="/profils"
         role="search"
-        aria-label="Rechercher et filtrer les profils"
-        className="mt-8 grid gap-4 rounded-xl border border-border bg-card p-4 sm:p-5 sm:grid-cols-[1fr_auto_auto] sm:items-end"
+        aria-label="Rechercher des profils"
+        className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end"
       >
-        <div className="grid gap-1.5">
-          <Label htmlFor="q">Rechercher (nom ou mots-clés)</Label>
-          <Input
-            id="q"
-            name="q"
-            type="search"
-            defaultValue={filters.q}
-            maxLength={120}
-            placeholder="Ex. : éducation, santé, un nom…"
-            className="min-h-11"
-          />
+        <div className="grid flex-1 gap-1.5">
+          <Label htmlFor="q">Rechercher un nom ou un mot-clé</Label>
+          <div className="relative">
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              id="q"
+              name="q"
+              type="search"
+              defaultValue={filters.q}
+              maxLength={120}
+              placeholder="Ex. : éducation, santé, un nom…"
+              className="min-h-12 rounded-xl bg-card pl-11 text-base"
+            />
+          </div>
         </div>
-        <div className="grid gap-1.5 sm:w-64">
-          <Label htmlFor="categorie">Domaine d&apos;engagement</Label>
-          <select
-            id="categorie"
-            name="categorie"
-            defaultValue={filters.categorie}
-            className="min-h-11 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-          >
-            <option value="">Tous les domaines</option>
-            {categories.map((category) => (
-              <option key={category.slug} value={category.slug}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Button type="submit" className="min-h-11 w-full sm:w-auto">
-          <Search aria-hidden="true" />
-          Filtrer
+        {filters.categorie ? <input type="hidden" name="categorie" value={filters.categorie} /> : null}
+        <Button type="submit" className="min-h-12 rounded-xl px-6 text-base">
+          Rechercher
         </Button>
       </form>
 
-      <section aria-label="Profils publiés" className="mt-8">
+      {/* Filtre par domaine — liens simples (sans JavaScript, adaptés à la 3G). */}
+      <nav aria-label="Filtrer par domaine" className="-mx-4 mt-5 sm:mx-0">
+        {/* Mobile : une ligne qui défile horizontalement ; dès sm : puces sur plusieurs lignes. */}
+        <ul className="flex gap-2 overflow-x-auto px-4 pb-2 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+          <li>
+            <Link
+              href={chipHref("")}
+              aria-current={filters.categorie === "" ? "page" : undefined}
+              className={filters.categorie === "" ? chipOn : chipOff}
+            >
+              Tous les domaines
+            </Link>
+          </li>
+          {categories.map((category) => (
+            <li key={category.slug}>
+              <Link
+                href={chipHref(category.slug)}
+                aria-current={filters.categorie === category.slug ? "page" : undefined}
+                className={filters.categorie === category.slug ? chipOn : chipOff}
+              >
+                {category.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <section aria-label="Profils publiés" className="mt-10 border-t border-border/70 pt-8">
         {/* État de chargement (§16.3) : Suspense interne volontaire — une
             boundary loading.tsx avancerait le statut HTTP 200 du shell avant
             la résolution de notFound() et casserait la sémantique 404 requise
@@ -264,7 +294,7 @@ async function ProfilsResults({
       <p className="text-sm text-muted-foreground" role="status">
         {total} profil{total > 1 ? "s" : ""} — page {currentPage} sur {totalPages}
       </p>
-      <ul className="mt-4 grid list-none gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-5 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => (
           <li key={card.slug} className="h-full">
             <ProfileCard profile={card} />
@@ -293,6 +323,20 @@ async function ProfilsResults({
           ) : null}
         </nav>
       ) : null}
+
+      <div className="mt-14 flex flex-col gap-5 rounded-2xl border border-dashed border-[#CFC7B2] bg-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <div>
+          <h2 className="font-display text-xl font-semibold text-foreground">
+            Vous ne trouvez pas la personne que vous cherchez ?
+          </h2>
+          <p className="mt-1.5 text-[15px] text-muted-foreground">
+            Elle n&apos;a peut-être pas encore été invitée. Proposez son parcours à l&apos;équipe.
+          </p>
+        </div>
+        <Button asChild variant="outline" className="min-h-11 shrink-0 rounded-full border-pine px-5 text-pine hover:bg-accent hover:text-pine">
+          <Link href="/proposer">Proposer une personne</Link>
+        </Button>
+      </div>
     </>
   );
 }

@@ -6,18 +6,19 @@
 
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
-    { url: "/", changeFrequency: "weekly", priority: 1 },
-    { url: "/profils", changeFrequency: "daily", priority: 0.9 },
-    { url: "/proposer", changeFrequency: "monthly", priority: 0.6 },
-    { url: "/demandes-droits", changeFrequency: "yearly", priority: 0.4 },
-    { url: "/contact", changeFrequency: "yearly", priority: 0.4 },
-    { url: "/mentions-legales", changeFrequency: "yearly", priority: 0.2 },
-    { url: "/confidentialite", changeFrequency: "yearly", priority: 0.4 },
+    { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
+    { url: absoluteUrl("/profils"), changeFrequency: "daily", priority: 0.9 },
+    { url: absoluteUrl("/proposer"), changeFrequency: "monthly", priority: 0.6 },
+    { url: absoluteUrl("/demandes-droits"), changeFrequency: "yearly", priority: 0.4 },
+    { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.4 },
+    { url: absoluteUrl("/mentions-legales"), changeFrequency: "yearly", priority: 0.2 },
+    { url: absoluteUrl("/confidentialite"), changeFrequency: "yearly", priority: 0.4 },
   ];
 
   try {
@@ -33,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
     const profileEntries: MetadataRoute.Sitemap = publications.map((publication) => ({
-      url: `/profils/${publication.slug}`,
+      url: absoluteUrl(`/profils/${publication.slug}`),
       lastModified: publication.updatedAt ?? publication.publishedAt ?? undefined,
       changeFrequency: "monthly",
       priority: 0.8,
