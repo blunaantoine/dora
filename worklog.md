@@ -391,3 +391,18 @@ Stage Summary:
 - Le preview est de nouveau pleinement opérationnel ; cause profonde identifiée et éliminée (le scaffold ne peut plus réapparaître : suppression versionnée dans git).
 - Accès équipe de dev documenté (admin@dora-dev.local / Dora-Dev#2026-Togo) — ROTATION OBLIGATOIRE avant mise en production.
 - Aucun changement fonctionnel ni de données : l'état livré en 7-4 (maquette carrousel à l'identique) est intact et vérifié.
+---
+Task ID: 8-2
+Agent: Z.ai (orchestrateur)
+Task: Fusion de la branche client refonte-interface-publique dans main (mise en ligne)
+
+Work Log:
+- git fetch : branche origin/refonte-interface-publique récupérée (1 commit e1ab70b « Refonte de l'interface publique + corrections », 51 fichiers, +925/−5513 dont le nettoyage des tool-results).
+- Revue du diff avant merge : accueil/layout/fiche profil/annuaire refondus ; honored-carousel conservé (titre « Top 5 des parcours » avec Trophy, badges « 1re/2e/3e place » or/argent/bronze, autoplay 4 s — la vitesse réglable 2-10 s est retirée par la refonte, choix client assumé) ; SEO renforcé (robots.ts dynamique remplaçant public/robots.txt, sitemap en URL absolue, nouveau src/lib/site-url.ts depuis NEXTAUTH_URL) ; .gitignore ignore désormais tool-results/ ; tsconfig exclut examples/.
+- Merge --no-ff dans main (aucun conflit ; main local n'avait que l'append worklog 8-1) + push : 90f5a2f..8254cfd main -> main. La branche reste disponible sur GitHub pour référence.
+- Vérifications post-merge : lint 0 erreur ; accueil 200 avec « Top 5 des parcours » ; annuaire 200 ; fiche /profils/demo-abra-tetteh 200 (Biographie, lieu, date) ; robots.txt 200 (disallow /admin/, /api/, /invitation/) ; sitemap.xml 200 ; /admin accessible (session active, Tableau de bord, 11 liens nav) ; navigateur desktop 1440px : nouvelle en-tête (logo Dora complet + nav Les parcours/Notre démarche/Nos critères/CTA pine), hero refondu, carrousel « TOP 5 DES PARCOURS » avec compteur 5/5, badge « 5e place », autoplay actif (5e carte affichée spontanément) ; iPhone 14 sans débordement ; 0 erreur console. Captures refonte-accueil-desktop.png / refonte-accueil-mobile.png (tool-results/, désormais hors dépôt).
+
+Stage Summary:
+- La refonte de l'interface publique proposée par le client est fusionnée dans main et en ligne sur le preview.
+- Le carrousel Top 5 et la philosophie (choix éditorial, ni notes ni popularité) sont préservés ; SEO technique amélioré (robots/sitemap/URL absolues).
+- tool-results/ n'est plus versionné : les prochaines captures resteront locales.
