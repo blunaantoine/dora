@@ -464,17 +464,17 @@ export function PublicationPanel({
             {data.publication?.featured ? (
               <>
                 <span className="font-medium text-foreground">
-                  À l&apos;honneur{data.publication.featuredRank ? ` — rang ${data.publication.featuredRank}` : " (rang non réglé)"}
+                  Top 5 des parcours{data.publication.featuredRank ? ` — rang ${data.publication.featuredRank}` : " (rang non réglé)"}
                 </span>
                 <Link href="/admin/a-lhonneur" className="text-pine underline-offset-4 hover:underline">
-                  Gérer la sélection
+                  Gérer le Top 5
                 </Link>
               </>
             ) : (
               <>
-                <span className="text-muted-foreground">Hors sélection « À l&apos;honneur ».</span>
+                <span className="text-muted-foreground">Hors Top 5 des parcours.</span>
                 <Link href="/admin/a-lhonneur" className="text-pine underline-offset-4 hover:underline">
-                  Ajouter à la sélection
+                  Ajouter au Top 5
                 </Link>
               </>
             )}

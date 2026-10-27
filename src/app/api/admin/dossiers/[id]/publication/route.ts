@@ -297,7 +297,7 @@ export const POST = withApi<{ id: string }>(async (req, ctx) => {
         data: {
           state: "PUBLISHED",
           approvedFields: JSON.stringify(approvedFields),
-          // Republication sans `featured` fourni : l'état « À l'honneur »
+          // Republication sans `featured` fourni : l'état « Top 5 des parcours »
           // existant (featured + featuredRank) est PRÉSERVÉ — la sélection
           // éditoriale ne doit pas être effacée par une republication.
           ...(featured !== undefined
@@ -428,9 +428,9 @@ export const PATCH = withApi<{ id: string }>(async (req, ctx) => {
   }
   if (featured !== undefined) {
     data.featured = featured;
-    // Cohérence « À l'honneur » : retirer la mise en avant sort aussi du
+    // Cohérence « Top 5 des parcours » : retirer la mise en avant sort aussi du
     // carrousel ; l'activer sans rang reste possible (le rang se règle dans
-    // l'espace « À l'honneur »).
+    // l'espace « Top 5 des parcours »).
     if (!featured) data.featuredRank = null;
     touched.push("featured");
   }

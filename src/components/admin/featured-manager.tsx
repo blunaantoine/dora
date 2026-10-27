@@ -1,12 +1,12 @@
 "use client";
 
 // ---------------------------------------------------------------------------
-// Gestion de la sélection « À l'honneur » (côté client) — l'équipe choisit au
+// Gestion du « Top 5 des parcours » (côté client) — l'équipe choisit au
 // plus 5 parcours publiés et fixe leur ordre. CHOIX ÉDITORIAL : pas une
 // notation (la plateforme n'a ni notes, ni popularité, ni nombre de vues).
 //
-// Le rang 1 sera affiché « Coup de cœur n°1 » avec un badge or sur la
-// bannière d'accueil, le 2 argent, le 3 bronze, les suivants neutres.
+// Affichage public (maquette, à l'identique) : rang 1 badge or « 1er »,
+// rang 2 argent « 2e », rang 3 bronze « 3e », rangs suivants neutres.
 // Toute l'action passe par PUT /api/admin/featured (permission
 // PUBLISH_PROFILES vérifiée côté serveur, journal d'audit écrit).
 // ---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ export function FeaturedManager({
       return;
     }
     toast({
-      title: "Sélection « À l'honneur » enregistrée",
+      title: "Top 5 des parcours enregistré",
       description: "La bannière d'accueil affiche la nouvelle sélection (choix éditorial journalisé).",
     });
     router.refresh();
@@ -125,10 +125,11 @@ export function FeaturedManager({
         <Info aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-pine" />
         <p>
           <strong className="font-semibold">Choix éditorial, pas une notation.</strong> La bannière
-          d&apos;accueil présente au plus {max} parcours « À l&apos;honneur » sélectionnés par
-          l&apos;équipe — la valorisation ne repose ni sur les notes, ni sur la popularité, ni sur
-          le nombre de vues. Le rang 1 reçoit un badge or (« Coup de cœur n°1 »), le rang 2 argent,
-          le rang 3 bronze ; les suivants restent neutres. L&apos;action est journalisée.
+          d&apos;accueil présente le « Top 5 des parcours » : au plus {max} parcours sélectionnés
+          par l&apos;équipe — la valorisation ne repose ni sur les notes, ni sur la popularité, ni
+          sur le nombre de vues. Le rang 1 reçoit un badge or (« 1er »), le rang 2 argent (« 2e »),
+          le rang 3 bronze (« 3e ») ; les rangs suivants restent neutres. L&apos;action est
+          journalisée.
         </p>
       </div>
 
@@ -140,7 +141,7 @@ export function FeaturedManager({
 
         {selected.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            Aucun parcours à l&apos;honneur pour l&apos;instant : la bannière d&apos;accueil
+            Aucun parcours dans le Top 5 pour l&apos;instant : la bannière d&apos;accueil
             affichera le logo seul tant que la sélection est vide.
           </p>
         ) : (
@@ -212,7 +213,7 @@ export function FeaturedManager({
 
       {/* Ajout depuis les profils publiés */}
       <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-        <Label htmlFor="add-honored">Ajouter un parcours publié ({selected.length}/{max})</Label>
+        <Label htmlFor="add-honored">Ajouter au Top 5 ({selected.length}/{max})</Label>
         <Select
           value=""
           onValueChange={addEntry}
@@ -238,7 +239,7 @@ export function FeaturedManager({
           </SelectContent>
         </Select>
         <p className="mt-2 text-xs text-muted-foreground">
-          Seuls les profils actuellement publiés peuvent figurer à l&apos;honneur. Dépublier un
+          Seuls les profils actuellement publiés peuvent figurer dans le Top 5. Dépublier un
           profil le retire automatiquement de la sélection.
         </p>
       </div>
@@ -252,7 +253,7 @@ export function FeaturedManager({
           disabled={pending || !dirty}
         >
           {pending ? <Loader2 aria-hidden="true" className="animate-spin" /> : null}
-          Enregistrer la sélection
+          Enregistrer le Top 5
         </Button>
         <Link
           href="/"

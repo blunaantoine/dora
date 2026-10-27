@@ -1,11 +1,12 @@
 // ---------------------------------------------------------------------------
-// API admin « À l'honneur » — sélection éditoriale des 5 parcours mis en avant
-// sur la bannière d'accueil (carrousel).
+// API admin « Top 5 des parcours » — sélection éditoriale des 5 parcours mis
+// en avant sur la bannière d'accueil (carrousel).
 //
 // CHOIX ÉDITORIAL, PAS UNE NOTATION : la plateforme n'a ni notes, ni
 // popularité, ni nombre de vues (principe affiché publiquement). L'ordre est
-// fixé par l'équipe : featuredRank 1..5 (1 = « Coup de cœur n°1 », badge or).
-// ProfilePublication.featured reste le miroir booléen de featuredRank != null.
+// fixé par l'équipe : featuredRank 1..5 (1 = badge or « 1er », 2 = argent
+// « 2e », 3 = bronze « 3e », suivants neutres). ProfilePublication.featured
+// reste le miroir booléen de featuredRank != null.
 //
 // GET  /api/admin/featured
 //      { honored: [{id, slug, publicName, rank}], candidates: [{id, slug,
@@ -14,7 +15,7 @@
 //
 // PUT  /api/admin/featured  { order: [publicationId, ...] } (0 à 5 ids uniques)
 //      Réécriture autoritaire de la sélection : les publications non listées
-//      sortent de l'honneur (featuredRank=null, featured=false), celles de la
+//      sortent du Top 5 (featuredRank=null, featured=false), celles de la
 //      liste reçoivent rank = index+1. Transaction + audit FEATURED_ORDER_UPDATED.
 //
 // Permission : PUBLISH_PROFILES (ADMIN) — même garde que la publication.
@@ -94,7 +95,7 @@ export const PUT = withApi(async (req) => {
   const body: unknown = await req.json().catch(() => null);
   const parsed = putSchema.safeParse(body);
   if (!parsed.success) {
-    throw ApiError.validation("Sélection « À l'honneur » invalide.", zodErrorToFields(parsed.error));
+    throw ApiError.validation("Sélection du Top 5 invalide.", zodErrorToFields(parsed.error));
   }
   const order = parsed.data.order;
 
@@ -110,7 +111,7 @@ export const PUT = withApi(async (req) => {
     const notPublished = rows.find((row) => row.state !== "PUBLISHED");
     if (notPublished) {
       throw ApiError.conflict(
-        `Le parcours « ${notPublished.person.publicName ?? notPublished.slug} » n'est pas publié : seul un profil publié peut figurer à l'honneur.`,
+        `Le parcours « ${notPublished.person.publicName ?? notPublished.slug} » n'est pas publié : seul un profil publié peut figurer dans le Top 5.`,
       );
     }
   }
@@ -118,7 +119,7 @@ export const PUT = withApi(async (req) => {
   const assigned = order.map((id, index) => ({ id, rank: index + 1 }));
 
   await db.$transaction(async (tx) => {
-    // 1) Sortie de l'honneur pour tout ce qui n'est pas (ou plus) sélectionné.
+    // 1) Sortie du Top 5 pour tout ce qui n'est pas (ou plus) sélectionné.
     await tx.profilePublication.updateMany({
       where: { featuredRank: { not: null } },
       data: { featuredRank: null, featured: false },
@@ -143,6 +144,6 @@ export const PUT = withApi(async (req) => {
 
   return jsonOk({
     honored: assigned,
-    note: "Sélection « À l'honneur » enregistrée — choix éditorial de l'équipe (aucune notation).",
+    note: "Top 5 des parcours enregistré — choix éditorial de l'équipe (aucune notation).",
   });
 });

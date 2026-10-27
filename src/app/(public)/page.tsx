@@ -152,11 +152,11 @@ export default async function HomePage() {
     .map((publication) => serializePublicCard(publication.person, publication))
     .filter((card): card is PublicCardView => card !== null);
 
-  // « À l'honneur » (§4.1 variante éditoriale) : cinq parcours choisis par
-  // l'équipe, ordre fixé dans l'espace admin (featuredRank 1..5). CHOIX
-  // ÉDITORIAL — pas une notation : la valorisation ne repose ni sur les notes,
-  // ni sur la popularité, ni sur le nombre de vues. Le sérialiseur public
-  // unique garantit champs approuvés et double garde mineures.
+  // « Top 5 des parcours » (maquette client, à l'identique) : cinq parcours
+  // choisis par l'équipe, ordre fixé dans l'espace admin (featuredRank 1..5).
+  // CHOIX ÉDITORIAL — pas une notation : la valorisation ne repose ni sur les
+  // notes, ni sur la popularité, ni sur le nombre de vues. Le sérialiseur
+  // public unique garantit champs approuvés et double garde mineures.
   const honoredPublications = await db.profilePublication.findMany({
     where: { state: "PUBLISHED", featuredRank: { not: null } },
     orderBy: { featuredRank: "asc" },
@@ -292,14 +292,15 @@ export default async function HomePage() {
           </div>
           </div>
           {honoredItems.length > 0 ? (
-            // Carrousel « À l'honneur » à droite du bandeau (maquette client) :
-            // défilement auto 4 s, fondu, badges Coup de cœur, points, flèches,
-            // pause. Sur mobile il passe sous le texte (flex-col).
+            // Carrousel « Top 5 des parcours » à droite du bandeau (maquette
+            // client, à l'identique) : défilement auto 4 s (vitesse réglable
+            // 2–10 s), fondu, badges 1er or / 2e argent / 3e bronze, points,
+            // flèches, pause. Sur mobile il passe sous le texte (flex-col).
             <div className="w-full shrink-0 lg:w-[380px] xl:w-[420px]">
               <HonoredCarousel items={honoredItems} />
             </div>
           ) : (
-            // État vide honnête : logo tant qu'aucun parcours n'est à l'honneur.
+            // État vide honnête : logo tant qu'aucun Top 5 n'est sélectionné.
             <Image
               src="/logo-dora-blanc.png"
               alt="Logo Dora : deux silhouettes enlacées, une main protectrice au cœur"

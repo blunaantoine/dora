@@ -109,7 +109,7 @@ export function AdminShell({
         ]
       : []),
     ...(canManageBadges ? [{ href: "/admin/badges", label: "Badges", icon: Award }] : []),
-    ...(canPublishProfiles ? [{ href: "/admin/a-lhonneur", label: "À l'honneur", icon: Star }] : []),
+    ...(canPublishProfiles ? [{ href: "/admin/a-lhonneur", label: "Top 5", icon: Star }] : []),
     ...(canManageDossiers ? [{ href: "/admin/droits", label: "Droits des personnes", icon: Scale }] : []),
     ...(canManageAdmins
       ? [{ href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users }]

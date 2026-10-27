@@ -1,8 +1,9 @@
 // ---------------------------------------------------------------------------
-// Page admin « À l'honneur » — sélection éditoriale des parcours affichés en
-// carrousel sur la bannière d'accueil (au plus 5, ordre 1..5 fixé par
-// l'équipe). CHOIX ÉDITORIAL — pas une notation : la plateforme n'a ni notes,
-// ni popularité, ni nombre de vues (principe affiché publiquement).
+// Page admin « Top 5 des parcours » — sélection éditoriale des parcours
+// affichés en carrousel sur la bannière d'accueil (au plus 5, ordre 1..5
+// fixé par l'équipe). CHOIX ÉDITORIAL — pas une notation : la plateforme
+// n'a ni notes, ni popularité, ni nombre de vues (principe affiché
+// publiquement).
 //
 // Permission requise : PUBLISH_PROFILES (sinon redirection vers le tableau de
 // bord — même règle que la publication de profils).
@@ -14,7 +15,7 @@ import { getAdminSessionSafe } from "@/lib/auth-options";
 import { hasPermission } from "@/lib/permissions";
 import { FeaturedManager, type FeaturedManagerEntry } from "@/components/admin/featured-manager";
 
-export const metadata = { title: "À l'honneur — Espace équipe" };
+export const metadata = { title: "Top 5 des parcours — Espace équipe" };
 
 export default async function HonoredAdminPage() {
   const session = await getAdminSessionSafe();
@@ -55,10 +56,12 @@ export default async function HonoredAdminPage() {
   return (
     <div className="mx-auto w-full max-w-3xl grid gap-6">
       <header>
-        <h1 className="font-display text-2xl font-semibold text-foreground">À l&apos;honneur</h1>
+        <h1 className="font-display text-2xl font-semibold text-foreground">
+          Top 5 des parcours
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Les parcours présentés en carrousel sur la bannière d&apos;accueil — au plus cinq,
-          dans l&apos;ordre choisi par l&apos;équipe.
+          Les cinq parcours présentés en carrousel sur la bannière d&apos;accueil, dans
+          l&apos;ordre choisi par l&apos;équipe — rang 1 badge or, rang 2 argent, rang 3 bronze.
         </p>
       </header>
 

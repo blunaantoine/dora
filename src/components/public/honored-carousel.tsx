@@ -1,17 +1,21 @@
 "use client";
 
 // ---------------------------------------------------------------------------
-// Carrousel « À l'honneur » — bannière d'accueil (à droite du bandeau).
+// Carrousel « Top 5 des parcours » — bannière d'accueil (à droite du bandeau).
 //
-// Comportement (maquette client) :
-//   • défilement automatique toutes les 4 secondes avec fondu enchaîné ;
-//   • badge de classement sur chaque carte : « Coup de cœur n°1 » (or),
-//     n°2 (argent), n°3 (bronze), n°4-5 (neutre) — c'est un CHOIX ÉDITORIAL
-//     de l'équipe, PAS une notation (la plateforme n'a ni notes, ni
-//     popularité, ni nombre de vues) ;
-//   • chaque carte : photo (ou emplacement initialée), domaine, nom public et
-//     lien « Voir son parcours » vers la fiche publique ;
-//   • points d'accès direct, flèches précédent/suivant, bouton pause.
+// Comportement (maquette client, reprise à l'identique) :
+//   • défilement automatique toutes les 4 secondes par défaut, avec fondu
+//     enchaîné ;
+//   • vitesse réglable de 2 à 10 secondes (onglet « Tweaks » de la maquette) —
+//     le réglage du visiteur est mémorisé localement (localStorage) ;
+//   • badge de rang sur chaque carte : « 1er » (or), « 2e » (argent),
+//     « 3e » (bronze), « 4e »/« 5e » (neutre). Le classement est un choix
+//     éditorial de l'équipe (featuredRank), pas une notation : la plateforme
+//     n'a ni notes, ni popularité, ni nombre de vues ;
+//   • chaque carte : photo (ou emplacement réservé avec initiale), domaine
+//     d'engagement, nom public et lien « Voir son parcours » vers la fiche
+//     publique ;
+//   • points d'accès direct par rang, flèches précédent/suivant, bouton pause.
 //
 // Accessibilité (WCAG 2.2.2 — le contenu en mouvement doit pouvoir être
 // arrêté) : bouton pause/reprise avec libellé dynamique, pause automatique au
@@ -19,10 +23,6 @@
 // défilement automatique), région aria-roledescription="carrousel", annonces
 // polies uniquement lors des navigations manuelles (l'automatique ne spamme
 // pas les lecteurs d'écran), cartes hors écran inertes et masquées.
-//
-// La vitesse (4 s) et ses bornes (2 à 10 s, cf. « Tweaks » de la maquette)
-// sont des constantes : le réglage par visiteur n'est pas prévu au cahier des
-// charges, seul l'arrêt l'est.
 // ---------------------------------------------------------------------------
 
 import {
@@ -34,15 +34,73 @@ import {
   useSyncExternalStore,
 } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play, Timer } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-/** Intervalle de défilement automatique (maquette : 4 s). */
+/** Intervalle par défaut (maquette : 4 s). */
 const AUTOPLAY_MS = 4000;
 /** Bornes documentées dans la maquette (onglet « Tweaks ») : 2 à 10 secondes. */
 export const AUTOPLAY_MIN_MS = 2000;
 export const AUTOPLAY_MAX_MS = 10000;
+/** Paliers proposés au réglage (secondes). */
+const SPEED_OPTIONS_MS = [2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000] as const;
+
+const STORAGE_KEY = "dora:carousel-interval-ms";
+
+// --- Store local de la vitesse (maquette « Tweaks ») --------------------------
+// La valeur choisie est mémorisée dans localStorage et exposée via
+// useSyncExternalStore : lecture sans état local, aucun setState dans un
+// effet, et écart serveur/client géré proprement par React (4 s côté
+// serveur, préférence mémorisée adoptée dès l'hydratation).
+let speedCache: number | null = null;
+const speedListeners = new Set<() => void>();
+
+function readStoredSpeed(): number {
+  if (speedCache !== null) return speedCache;
+  let value = AUTOPLAY_MS;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = Number(raw);
+      if (Number.isInteger(parsed) && parsed >= AUTOPLAY_MIN_MS && parsed <= AUTOPLAY_MAX_MS) {
+        value = parsed;
+      }
+    }
+  } catch {
+    // Stockage indisponible (navigation privée stricte) : défaut 4 s.
+  }
+  speedCache = value;
+  return value;
+}
+
+function subscribeSpeed(onChange: () => void): () => void {
+  speedListeners.add(onChange);
+  return () => {
+    speedListeners.delete(onChange);
+  };
+}
+
+function getServerSpeed(): number {
+  return AUTOPLAY_MS;
+}
+
+function writeSpeed(value: number): void {
+  speedCache = value;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, String(value));
+  } catch {
+    // Stockage indisponible : le réglage reste actif pour la session.
+  }
+  for (const listener of speedListeners) listener();
+}
 
 export interface HonoredCarouselItem {
   slug: string;
@@ -58,7 +116,12 @@ export interface HonoredCarouselItem {
   } | null;
 }
 
-/** Badges de classement : 1re place or, 2e argent, 3e bronze, suivantes neutres. */
+/** Libellé de rang : 1er pour la première place, 2e/3e/4e/5e ensuite. */
+function rankLabel(rank: number): string {
+  return rank === 1 ? "1er" : `${rank}e`;
+}
+
+/** Badges de rang : 1re place or, 2e argent, 3e bronze, suivantes neutres. */
 function badgeStyle(rank: number): string {
   if (rank === 1) return "bg-gold text-pine-deep";
   if (rank === 2) return "bg-[#C9CDD2] text-[#202522]";
@@ -85,6 +148,10 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [announce, setAnnounce] = useState("");
+  // Vitesse du défilement (maquette « Tweaks » : 2 à 10 s, mémorisée
+  // localement). Côté serveur : 4 s — la préférence est appliquée dès
+  // l'hydratation sans écart de rendu.
+  const intervalMs = useSyncExternalStore(subscribeSpeed, readStoredSpeed, getServerSpeed);
   // Miroir de l'index pour les handlers (lu hors rendu uniquement).
   const indexRef = useRef(0);
   useEffect(() => {
@@ -92,9 +159,15 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
   }, [index]);
   const baseId = useId();
 
+  const handleSpeedChange = useCallback((value: string) => {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < AUTOPLAY_MIN_MS || parsed > AUTOPLAY_MAX_MS) return;
+    writeSpeed(parsed);
+  }, []);
+
   // Défilement automatique : suspendu si l'utilisateur met en pause, survole
   // la zone, y donne le focus clavier, si l'onglet est caché, ou si le
-  // système demande moins de mouvement.
+  // système demande moins de mouvement. Changer la vitesse relance le compte.
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotionSnapshot,
@@ -110,9 +183,9 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
       // Onglet caché : ne fait rien (reprendra au retour sans sauter).
       if (typeof document !== "undefined" && document.hidden) return;
       setIndex((current) => (current + 1) % count);
-    }, AUTOPLAY_MS);
+    }, intervalMs);
     return () => clearInterval(timer);
-  }, [running, count]);
+  }, [running, count, intervalMs]);
 
   const goTo = useCallback(
     (target: number) => {
@@ -120,7 +193,7 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
       const item = items[target % count];
       if (item) {
         setAnnounce(
-          `Parcours à l'honneur ${target % count + 1} sur ${count} : ${item.publicName}.`,
+          `Top 5 des parcours — rang ${rankLabel(item.rank)} sur ${count} : ${item.publicName}.`,
         );
       }
     },
@@ -130,8 +203,8 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
   const goPrevious = useCallback(() => goTo((indexRef.current - 1 + count) % count), [goTo, count]);
   const goNext = useCallback(() => goTo((indexRef.current + 1) % count), [goTo, count]);
 
-  // Navigation clavier gauche/droite sur la région (confort lecteur d'écran
-  // désactivé — flèches déjà utilisables via les boutons au Tab).
+  // Navigation clavier gauche/droite sur la région (confort clavier — flèches
+  // déjà accessibles au Tab via les boutons).
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "ArrowLeft") {
       event.preventDefault();
@@ -147,7 +220,7 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
   return (
     <section
       aria-roledescription="carrousel"
-      aria-label="Parcours à l'honneur, choix de l'équipe"
+      aria-label="Top 5 des parcours"
       onKeyDown={onKeyDown}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -155,10 +228,9 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
       onBlurCapture={() => setFocused(false)}
       className="w-full"
     >
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="font-display text-xl font-semibold text-gold">À l&apos;honneur</h2>
-        <p className="text-xs text-[#F8F5EF]/75">Choix de l&apos;équipe — ni notes, ni popularité.</p>
-      </div>
+      <h2 className="mb-3 font-display text-xl font-semibold text-gold">
+        Top 5 des parcours
+      </h2>
 
       <p aria-live="polite" role="status" className="sr-only">
         {announce}
@@ -182,8 +254,10 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
               )}
             >
               {/* Photo ou emplacement réservé (maquette : cadre pine, initiale
-                  en Fraunces, liseré or) — la vraie photo est servie par
-                  /api/public/media (visibilité revalidée à chaque accès). */}
+                  en Fraunces — « emplacement photo » volontairement vide tant
+                  que la personne n'a pas transmis de portrait autorisé). La
+                  vraie photo est servie par /api/public/media (visibilité
+                  revalidée à chaque accès). */}
               <div className="relative h-44 shrink-0 border-b border-border/60 bg-[#22503F]">
                 {item.photo ? (
                   <img
@@ -209,7 +283,7 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
                     badgeStyle(item.rank),
                   )}
                 >
-                  Coup de cœur n°{item.rank}
+                  {rankLabel(item.rank)}
                 </span>
               </div>
 
@@ -237,15 +311,16 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
         })}
       </div>
 
-      {/* Commandes : points d'accès direct, pause, précédent / suivant */}
-      <div className="mt-4 flex items-center justify-between gap-3">
+      {/* Commandes : points d'accès direct par rang, réglage de vitesse
+          (maquette « Tweaks »), pause, précédent / suivant. */}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <div role="group" aria-label="Accès direct à un rang" className="flex items-center gap-1.5">
           {items.map((item, position) => (
             <button
               key={item.slug}
               type="button"
               onClick={() => goTo(position)}
-              aria-label={`Voir le parcours n°${item.rank} : ${item.publicName}`}
+              aria-label={`Aller au rang ${rankLabel(item.rank)} : ${item.publicName}`}
               aria-current={position === index ? "true" : undefined}
               className={cn(
                 "h-3 rounded-full transition-all focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none",
@@ -256,21 +331,46 @@ export function HonoredCarousel({ items }: { items: HonoredCarouselItem[] }) {
         </div>
 
         <div role="group" aria-label="Commandes du carrousel" className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setUserPaused((paused) => !paused)}
-            // Le bouton reflète le choix explicite de l'utilisateur ; la pause
-            // temporaire au survol/focus ne change pas son libellé.
-            aria-pressed={userPaused}
-            aria-label={
-              userPaused
-                ? "Reprendre le défilement automatique"
-                : "Mettre en pause le défilement automatique"
-            }
-            className="inline-flex size-11 items-center justify-center rounded-full border border-[#F8F5EF]/35 text-[#F8F5EF] transition-colors hover:bg-[#F8F5EF]/10 focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none"
-          >
-            {userPaused ? <Play aria-hidden="true" className="size-4" /> : <Pause aria-hidden="true" className="size-4" />}
-          </button>
+          {count > 1 ? (
+            <div className="flex items-center gap-1.5">
+              {/* Vitesse de défilement — équivalent de l'onglet « Tweaks » de
+                  la maquette (2 à 10 s). Le réglage reste disponible même en
+                  pause. */}
+              <Timer aria-hidden="true" className="size-4 text-[#F8F5EF]/70" />
+              <Select value={String(intervalMs)} onValueChange={handleSpeedChange}>
+                <SelectTrigger
+                  aria-label="Vitesse de défilement automatique (2 à 10 secondes)"
+                  className="h-11 w-[84px] rounded-full border-[#F8F5EF]/35 bg-transparent px-3 text-sm text-[#F8F5EF] shadow-none transition-colors hover:bg-[#F8F5EF]/10 focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none data-[state=open]:bg-[#F8F5EF]/10 [&>svg]:size-4 [&>svg]:text-[#F8F5EF]"
+                >
+                  <SelectValue aria-hidden="true" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SPEED_OPTIONS_MS.map((option) => (
+                    <SelectItem key={option} value={String(option)}>
+                      {option / 1000} secondes
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+          {count > 1 ? (
+            <button
+              type="button"
+              onClick={() => setUserPaused((paused) => !paused)}
+              // Le bouton reflète le choix explicite de l'utilisateur ; la pause
+              // temporaire au survol/focus ne change pas son libellé.
+              aria-pressed={userPaused}
+              aria-label={
+                userPaused
+                  ? "Reprendre le défilement automatique"
+                  : "Mettre en pause le défilement automatique"
+              }
+              className="inline-flex size-11 items-center justify-center rounded-full border border-[#F8F5EF]/35 text-[#F8F5EF] transition-colors hover:bg-[#F8F5EF]/10 focus-visible:ring-[3px] focus-visible:ring-gold/60 focus-visible:outline-none"
+            >
+              {userPaused ? <Play aria-hidden="true" className="size-4" /> : <Pause aria-hidden="true" className="size-4" />}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={goPrevious}
