@@ -18,6 +18,10 @@ import {
 import { db } from "@/lib/db";
 import { serializePublicCard, type PublicCardView } from "@/lib/public-profile";
 import { ProfileCard } from "@/components/public/profile-card";
+import {
+  HonoredCarousel,
+  type HonoredCarouselItem,
+} from "@/components/public/honored-carousel";
 import { Button } from "@/components/ui/button";
 
 // Slogan et contenus institutionnels — cahier des charges (slogan §0, mission
@@ -148,6 +152,81 @@ export default async function HomePage() {
     .map((publication) => serializePublicCard(publication.person, publication))
     .filter((card): card is PublicCardView => card !== null);
 
+  // « À l'honneur » (§4.1 variante éditoriale) : cinq parcours choisis par
+  // l'équipe, ordre fixé dans l'espace admin (featuredRank 1..5). CHOIX
+  // ÉDITORIAL — pas une notation : la valorisation ne repose ni sur les notes,
+  // ni sur la popularité, ni sur le nombre de vues. Le sérialiseur public
+  // unique garantit champs approuvés et double garde mineures.
+  const honoredPublications = await db.profilePublication.findMany({
+    where: { state: "PUBLISHED", featuredRank: { not: null } },
+    orderBy: { featuredRank: "asc" },
+    take: 5,
+    select: {
+      slug: true,
+      state: true,
+      approvedFields: true,
+      featured: true,
+      featuredRank: true,
+      publishedAt: true,
+      person: {
+        select: {
+          publicName: true,
+          isMinor: true,
+          shortPresentation: true,
+          country: true,
+          category: { select: { name: true, slug: true, isActive: true } },
+          photoAsset: {
+            select: {
+              id: true,
+              kind: true,
+              status: true,
+              visibility: true,
+              width: true,
+              height: true,
+              originalName: true,
+            },
+          },
+          media: {
+            where: { visibility: "PUBLIC", status: { in: ["READY", "VALIDATED"] } },
+            orderBy: [{ kind: "asc" }, { uploadedAt: "asc" }],
+            take: 1,
+            select: {
+              id: true,
+              kind: true,
+              status: true,
+              visibility: true,
+              width: true,
+              height: true,
+              originalName: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const honoredItems: HonoredCarouselItem[] = honoredPublications
+    .map((publication) => {
+      const card = serializePublicCard(publication.person, publication);
+      if (!card) return null;
+      return {
+        slug: card.slug,
+        publicName: card.publicName,
+        categoryName: card.categoryName,
+        rank: publication.featuredRank ?? 0,
+        photo: card.photo
+          ? {
+              url: card.photo.url,
+              alt: card.photo.alt,
+              width: card.photo.width,
+              height: card.photo.height,
+            }
+          : null,
+      } satisfies HonoredCarouselItem;
+    })
+    .filter((item): item is HonoredCarouselItem => item !== null)
+    .sort((a, b) => a.rank - b.rank);
+
   return (
     <>
       {/* Hero — fond vert profond, texte ivoire, accents or (AA respecté :
@@ -212,24 +291,34 @@ export default async function HomePage() {
             </Button>
           </div>
           </div>
-          <Image
-            src="/logo-dora-blanc.png"
-            alt="Logo Dora : deux silhouettes enlacées, une main protectrice au cœur"
-            width={1522}
-            height={505}
-            priority
-            className="hidden h-auto w-[300px] shrink-0 self-center lg:block xl:w-[360px]"
-          />
+          {honoredItems.length > 0 ? (
+            // Carrousel « À l'honneur » à droite du bandeau (maquette client) :
+            // défilement auto 4 s, fondu, badges Coup de cœur, points, flèches,
+            // pause. Sur mobile il passe sous le texte (flex-col).
+            <div className="w-full shrink-0 lg:w-[380px] xl:w-[420px]">
+              <HonoredCarousel items={honoredItems} />
+            </div>
+          ) : (
+            // État vide honnête : logo tant qu'aucun parcours n'est à l'honneur.
+            <Image
+              src="/logo-dora-blanc.png"
+              alt="Logo Dora : deux silhouettes enlacées, une main protectrice au cœur"
+              width={1522}
+              height={505}
+              priority
+              className="hidden h-auto w-[300px] shrink-0 self-center lg:block xl:w-[360px]"
+            />
+          )}
         </div>
       </section>
 
-      {/* L'acronyme DORA — identité du nom (décision client : Dignité,
-          Optimisme, Résilience, Action). Initiales en or sur cartes, style
-          cohérent avec le reste de la page. */}
+      {/* L'acronyme DORA — bande claire pleine largeur juste sous le bandeau
+          (maquette client). Identité : Dignité, Optimisme, Résilience, Action. */}
       <section
         aria-labelledby="acronyme"
-        className="mx-auto w-full max-w-6xl px-4 pt-14 sm:px-6 sm:pt-20"
+        className="border-b border-border/70 bg-card"
       >
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
         <h2
           id="acronyme"
           className="font-display text-2xl font-semibold text-foreground sm:text-3xl"
@@ -241,7 +330,7 @@ export default async function HomePage() {
           Le nom de la plateforme est une promesse, lettre par lettre :
         </p>
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
             <span
               aria-hidden="true"
               className="font-display text-4xl leading-none font-semibold text-gold"
@@ -256,7 +345,7 @@ export default async function HomePage() {
               renforcées pour les mineures, maîtrise de ses informations à tout moment.
             </p>
           </li>
-          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
             <span
               aria-hidden="true"
               className="font-display text-4xl leading-none font-semibold text-gold"
@@ -269,7 +358,7 @@ export default async function HomePage() {
               s&apos;engager à son tour.
             </p>
           </li>
-          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
             <span
               aria-hidden="true"
               className="font-display text-4xl leading-none font-semibold text-gold"
@@ -284,7 +373,7 @@ export default async function HomePage() {
               l&apos;éclat d&apos;un instant.
             </p>
           </li>
-          <li className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <li className="rounded-xl border border-border bg-background p-5 shadow-xs">
             <span
               aria-hidden="true"
               className="font-display text-4xl leading-none font-semibold text-gold"
@@ -297,6 +386,7 @@ export default async function HomePage() {
             </p>
           </li>
         </ul>
+        </div>
       </section>
 
       {/* Notre mission */}

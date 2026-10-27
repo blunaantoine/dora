@@ -57,3 +57,10 @@ uploads-private/
 # Artefacts runtime du sandbox
 .zscripts/dev.pid
 .zscripts/*.log
+
+# Maquette design de référence (upload client — hors dépôt)
+design-ref/
+
+# Fichiers téléversés par le client (hors dépôt)
+upload/*.zip
+upload/*.txt

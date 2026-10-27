@@ -15,6 +15,7 @@ import {
   Scale,
   ScrollText,
   Shapes,
+  Star,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -76,6 +77,7 @@ export function AdminShell({
   const canModerateTestimonials = hasPermission(user.role, "MODERATE_TESTIMONIALS");
   const canManageNominations = hasPermission(user.role, "MANAGE_NOMINATIONS");
   const canManageBadges = hasPermission(user.role, "MANAGE_BADGES");
+  const canPublishProfiles = hasPermission(user.role, "PUBLISH_PROFILES");
 
   const navItems: NavItem[] = [
     { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
@@ -107,6 +109,7 @@ export function AdminShell({
         ]
       : []),
     ...(canManageBadges ? [{ href: "/admin/badges", label: "Badges", icon: Award }] : []),
+    ...(canPublishProfiles ? [{ href: "/admin/a-lhonneur", label: "À l'honneur", icon: Star }] : []),
     ...(canManageDossiers ? [{ href: "/admin/droits", label: "Droits des personnes", icon: Scale }] : []),
     ...(canManageAdmins
       ? [{ href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users }]

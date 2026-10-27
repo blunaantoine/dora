@@ -215,6 +215,9 @@ model ProfilePublication {
   state         String  @default("UNPUBLISHED") // UNPUBLISHED | PUBLISHED
   approvedFields String @default("[]") // JSON array des noms de champs autorisés à la publication
   featured      Boolean @default(false)
+  featuredRank  Int?    // 1..5 — position dans « À l'honneur » (choix éditorial de
+                        // l'équipe, PAS une notation). Null = hors sélection.
+                        // featured est le miroir de featuredRank != null.
   seoTitle      String?
   seoDescription String?
   publishedAt   DateTime?

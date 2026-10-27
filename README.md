@@ -11,7 +11,7 @@ Dora permet de :
 
 - **Repérer et documenter** les parcours par une invitation sécurisée et un formulaire structuré en 9 étapes (consentement versionné, initiatives, vision, médias).
 - **Examiner et publier** chaque dossier avec un circuit de clarification, une publication vérifiée et révocable, et un journal d'audit de toutes les actions sensibles.
-- **Valoriser publiquement** les parcours publiés : annuaire filtrable (recherche sans JavaScript, adaptée aux connexions 3G), fiches individuelles optimisées SEO/réseaux sociaux.
+- **Valoriser publiquement** les parcours publiés : annuaire filtrable (recherche sans JavaScript, adaptée aux connexions 3G), fiches individuelles optimisées SEO/réseaux sociaux, et bannière d'accueil avec carrousel « **À l'honneur** » — au plus cinq parcours choisis par l'équipe (badges « Coup de cœur » or, argent, bronze). **Choix éditorial, pas une notation** : la valorisation ne repose ni sur les notes, ni sur la popularité, ni sur le nombre de vues.
 - **Recevoir la communauté** : témoignages modérés, propositions publiques de nouvelles personnes (avec détection de doublons), badges manuels justifiés.
 - **Garantir les droits des personnes** : demande d'accès, de correction, de dépublication, d'effacement ou de retrait de consentement, avec dépublication immédiate sur les cas concernés.
 - **Opérer sereinement** : sauvegardes chiffrables, procédure de restauration testée, sonde de santé `/api/health`, documentation de déploiement VPS.

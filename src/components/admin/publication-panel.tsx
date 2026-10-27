@@ -20,7 +20,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ExternalLink, ImageIcon, Loader2, ShieldAlert, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, ImageIcon, Loader2, ShieldAlert, Star, XCircle } from "lucide-react";
 
 import { MEDIA_KIND_LABELS, type MediaKind } from "@/lib/constants";
 import { PUBLIC_FIELDS, PUBLIC_FIELD_LABELS, type PublicField } from "@/lib/public-fields";
@@ -39,7 +39,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +62,7 @@ interface PublicationState {
     state: string;
     approvedFields: string[];
     featured: boolean;
+    featuredRank: number | null;
     seoTitle: string | null;
     seoDescription: string | null;
     publishedAt: string | null;
@@ -99,7 +99,6 @@ export function PublicationPanel({
   const [selectedFields, setSelectedFields] = useState<PublicField[]>([]);
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
-  const [featured, setFeatured] = useState(false);
   const [unpublishOpen, setUnpublishOpen] = useState(false);
   const [unpublishMotif, setUnpublishMotif] = useState("");
   const [pendingVisibility, setPendingVisibility] = useState<string | null>(null);
@@ -121,7 +120,6 @@ export function PublicationPanel({
       setSelectedFields(existing.approvedFields.filter((f): f is PublicField => (PUBLIC_FIELDS as readonly string[]).includes(f)));
       setSeoTitle(existing.seoTitle ?? "");
       setSeoDescription(existing.seoDescription ?? "");
-      setFeatured(existing.featured);
     } else if (isApprovable) {
       // Sélection prudente par défaut : nom public + présentation courte.
       setSelectedFields((prev) => (prev.length > 0 ? prev : ["publicName", "shortPresentation"]));
@@ -163,7 +161,6 @@ export function PublicationPanel({
         approvedFields: selectedFields,
         seoTitle: seoTitle.trim() !== "" ? seoTitle.trim() : null,
         seoDescription: seoDescription.trim() !== "" ? seoDescription.trim() : null,
-        featured,
       },
     );
     setPending(null);
@@ -186,7 +183,6 @@ export function PublicationPanel({
       approvedFields: selectedFields,
       seoTitle: seoTitle.trim() !== "" ? seoTitle.trim() : null,
       seoDescription: seoDescription.trim() !== "" ? seoDescription.trim() : null,
-      featured,
     });
     setPending(null);
     if (!result.ok) {
@@ -462,11 +458,30 @@ export function PublicationPanel({
             disabled={pending !== null}
           />
         </div>
-        <div className="flex items-center gap-3 sm:col-span-2">
-          <Switch id="featured" checked={featured} onCheckedChange={setFeatured} disabled={pending !== null} />
-          <Label htmlFor="featured" className="cursor-pointer">
-            Mettre ce profil en avant (à la une de l&apos;annuaire)
-          </Label>
+        <div className="rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm sm:col-span-2">
+          <p className="flex flex-wrap items-center gap-2">
+            <Star aria-hidden="true" className="size-4 text-gold" />
+            {data.publication?.featured ? (
+              <>
+                <span className="font-medium text-foreground">
+                  À l&apos;honneur{data.publication.featuredRank ? ` — rang ${data.publication.featuredRank}` : " (rang non réglé)"}
+                </span>
+                <Link href="/admin/a-lhonneur" className="text-pine underline-offset-4 hover:underline">
+                  Gérer la sélection
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="text-muted-foreground">Hors sélection « À l&apos;honneur ».</span>
+                <Link href="/admin/a-lhonneur" className="text-pine underline-offset-4 hover:underline">
+                  Ajouter à la sélection
+                </Link>
+              </>
+            )}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Sélection éditoriale de l&apos;équipe (au plus 5 parcours, ordre libre) — pas une notation.
+          </p>
         </div>
       </div>
 

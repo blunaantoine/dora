@@ -135,6 +135,7 @@ function serializePublication(row: {
   state: string;
   approvedFields: string;
   featured: boolean;
+  featuredRank: number | null;
   seoTitle: string | null;
   seoDescription: string | null;
   publishedAt: Date | null;
@@ -148,6 +149,7 @@ function serializePublication(row: {
     state: row.state,
     approvedFields: parseApprovedFields(row.approvedFields),
     featured: row.featured,
+    featuredRank: row.featuredRank,
     seoTitle: row.seoTitle,
     seoDescription: row.seoDescription,
     publishedAt: row.publishedAt ? row.publishedAt.toISOString() : null,
@@ -177,6 +179,7 @@ export const GET = withApi<{ id: string }>(async (req, ctx) => {
           state: true,
           approvedFields: true,
           featured: true,
+          featuredRank: true,
           seoTitle: true,
           seoDescription: true,
           publishedAt: true,
@@ -294,7 +297,12 @@ export const POST = withApi<{ id: string }>(async (req, ctx) => {
         data: {
           state: "PUBLISHED",
           approvedFields: JSON.stringify(approvedFields),
-          featured: featured ?? false,
+          // Republication sans `featured` fourni : l'état « À l'honneur »
+          // existant (featured + featuredRank) est PRÉSERVÉ — la sélection
+          // éditoriale ne doit pas être effacée par une republication.
+          ...(featured !== undefined
+            ? { featured, ...(featured === false ? { featuredRank: null } : {}) }
+            : {}),
           ...(seoTitle !== undefined ? { seoTitle: seoTitle === "" ? null : seoTitle } : {}),
           ...(seoDescription !== undefined ? { seoDescription: seoDescription === "" ? null : seoDescription } : {}),
           publishedAt: now,
@@ -420,6 +428,10 @@ export const PATCH = withApi<{ id: string }>(async (req, ctx) => {
   }
   if (featured !== undefined) {
     data.featured = featured;
+    // Cohérence « À l'honneur » : retirer la mise en avant sort aussi du
+    // carrousel ; l'activer sans rang reste possible (le rang se règle dans
+    // l'espace « À l'honneur »).
+    if (!featured) data.featuredRank = null;
     touched.push("featured");
   }
 
@@ -433,6 +445,7 @@ export const PATCH = withApi<{ id: string }>(async (req, ctx) => {
       state: true,
       approvedFields: true,
       featured: true,
+      featuredRank: true,
       seoTitle: true,
       seoDescription: true,
       publishedAt: true,
