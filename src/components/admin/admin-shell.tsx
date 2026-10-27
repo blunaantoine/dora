@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import {
   Award,
   FolderOpen,
+  Handshake,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -78,6 +79,7 @@ export function AdminShell({
   const canManageNominations = hasPermission(user.role, "MANAGE_NOMINATIONS");
   const canManageBadges = hasPermission(user.role, "MANAGE_BADGES");
   const canPublishProfiles = hasPermission(user.role, "PUBLISH_PROFILES");
+  const canManagePartners = hasPermission(user.role, "MANAGE_PARTNERS");
 
   const navItems: NavItem[] = [
     { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
@@ -109,6 +111,7 @@ export function AdminShell({
         ]
       : []),
     ...(canManageBadges ? [{ href: "/admin/badges", label: "Badges", icon: Award }] : []),
+    ...(canManagePartners ? [{ href: "/admin/associations", label: "Associations", icon: Handshake }] : []),
     ...(canPublishProfiles ? [{ href: "/admin/a-lhonneur", label: "Top 5", icon: Star }] : []),
     ...(canManageDossiers ? [{ href: "/admin/droits", label: "Droits des personnes", icon: Scale }] : []),
     ...(canManageAdmins

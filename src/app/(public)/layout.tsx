@@ -18,6 +18,7 @@ const FOOTER_COLUMNS = [
     titre: "Découvrir",
     liens: [
       { href: "/profils", label: "Annuaire des parcours" },
+      { href: "/associations", label: "Associations et ONG" },
       { href: "/#demarche", label: "Notre démarche" },
       { href: "/#criteres", label: "Nos critères" },
     ],
@@ -74,6 +75,9 @@ export default function PublicLayout({
           <nav aria-label="Navigation principale" className="flex items-center gap-1">
             <Link href="/profils" className={`${navLinkBase} inline-flex`}>
               Les parcours
+            </Link>
+            <Link href="/associations" className={`${navLinkBase} inline-flex`}>
+              Associations
             </Link>
             <Link href="/#demarche" className={`${navLinkBase} hidden md:inline-flex`}>
               Notre démarche

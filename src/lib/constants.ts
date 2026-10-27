@@ -368,6 +368,8 @@ export const AUDIT_ACTIONS = [
   "RIGHTS_REQUEST_STATUS_CHANGED",
   "RIGHTS_REQUEST_DECIDED",
   "SETTINGS_UPDATED",
+  "PARTNER_CREATED",
+  "PARTNER_UPDATED",
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
@@ -415,6 +417,8 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   RIGHTS_REQUEST_STATUS_CHANGED: "Statut de demande de droits changé",
   RIGHTS_REQUEST_DECIDED: "Demande de droits traitée",
   SETTINGS_UPDATED: "Paramètres mis à jour",
+  PARTNER_CREATED: "Association / ONG ajoutée",
+  PARTNER_UPDATED: "Association / ONG modifiée",
 };
 
 // --- Paramètres applicatifs ------------------------------------------------------

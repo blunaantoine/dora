@@ -89,3 +89,31 @@ export async function generateUniqueCategorySlug(name: string): Promise<string> 
 
   throw new Error("Impossible de générer un slug unique.");
 }
+
+/**
+ * Génère un slug unique pour la table PartnerOrganization (annuaire des
+ * associations et ONG) — même algorithme, autre table.
+ */
+export async function generateUniquePartnerSlug(name: string): Promise<string> {
+  const base = slugify(name) || "association";
+
+  const existing = await db.partnerOrganization.findMany({
+    where: { slug: { startsWith: base.slice(0, SLUG_MAX_LENGTH) } },
+    select: { slug: true },
+  });
+  const taken = new Set(existing.map((row) => row.slug));
+
+  if (!taken.has(base)) return base;
+
+  for (let i = 2; i <= 20; i += 1) {
+    const candidate = `${base}-${i}`.slice(0, SLUG_MAX_LENGTH);
+    if (!taken.has(candidate)) return candidate;
+  }
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const candidate = `${base.slice(0, SLUG_MAX_LENGTH - 5)}-${shortRandomSuffix()}`;
+    if (!taken.has(candidate)) return candidate;
+  }
+
+  throw new Error("Impossible de générer un slug unique.");
+}

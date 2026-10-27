@@ -201,6 +201,7 @@ model Category {
 
   nominations Nomination[]
   persons     PersonRecord[]
+  partnerOrganizations PartnerOrganization[] @relation("PartnerOrganizationDomains")
 }
 
 // ---------------------------------------------------------------------------
@@ -454,5 +455,37 @@ model ClarificationRequest {
 model Setting {
   key       String   @id
   value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Associations et ONG partenaires (annuaire public /associations).
+// Organisation à but non lucratif active au Togo, présentée avec ses domaines
+// d'intervention (liés aux catégories de la plateforme) et ses modalités
+// d'adhésion — pour que chaque visiteur sache s'il peut intégrer leur
+// communauté. Une organisation se désactive, elle ne se supprime jamais
+// (traçabilité, cf. catégories).
+// ---------------------------------------------------------------------------
+
+model PartnerOrganization {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  acronym   String? // sigle usuel (ex. WEP), optionnel
+  slug      String  @unique
+  mission   String // description de la mission (obligatoire)
+  city      String?
+  region    String?
+  website   String?
+  email     String?
+  phone     String?
+  // Adhésion : ouverte (on peut rejoindre leur communauté) ou non.
+  membershipOpen   Boolean @default(false)
+  membershipInfo   String? // modalités concrètes : comment rejoindre, conditions, contact dédié
+  isActive Boolean @default(true)
+  sortOrder Int    @default(0)
+
+  domains Category[] @relation("PartnerOrganizationDomains")
+
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

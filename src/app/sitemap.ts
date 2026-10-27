@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/profils"), changeFrequency: "daily", priority: 0.9 },
+    { url: absoluteUrl("/associations"), changeFrequency: "weekly", priority: 0.7 },
     { url: absoluteUrl("/proposer"), changeFrequency: "monthly", priority: 0.6 },
     { url: absoluteUrl("/demandes-droits"), changeFrequency: "yearly", priority: 0.4 },
     { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.4 },
@@ -40,7 +41,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticEntries, ...profileEntries];
+    // Fiches des associations et ONG actives (annuaire public).
+    const partners = await db.partnerOrganization.findMany({
+      where: { isActive: true },
+      orderBy: { updatedAt: "desc" },
+      select: { slug: true, updatedAt: true },
+      take: 500,
+    });
+    const partnerEntries: MetadataRoute.Sitemap = partners.map((partner) => ({
+      url: absoluteUrl(`/associations/${partner.slug}`),
+      lastModified: partner.updatedAt,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    }));
+
+    return [...staticEntries, ...profileEntries, ...partnerEntries];
   } catch (error) {
     // En cas d'indisponibilité de la base, le sitemap reste exploitable avec
     // les pages statiques (jamais d'erreur 500 sur /sitemap.xml).
