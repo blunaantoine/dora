@@ -406,3 +406,26 @@ Stage Summary:
 - La refonte de l'interface publique proposée par le client est fusionnée dans main et en ligne sur le preview.
 - Le carrousel Top 5 et la philosophie (choix éditorial, ni notes ni popularité) sont préservés ; SEO technique amélioré (robots/sitemap/URL absolues).
 - tool-results/ n'est plus versionné : les prochaines captures resteront locales.
+---
+Task ID: 9-1
+Agent: Z.ai (orchestrateur)
+Task: Annuaire des associations et ONG du Togo (/associations) — tri par domaine, adhésion ouverte/fermée, gestion équipe
+
+Work Log:
+- Schéma : PartnerOrganization (name/acronym/slug uniques, mission, city, region, website, email, phone, membershipOpen, membershipInfo, isActive, sortOrder) + M2M vers Category (domaines d'intervention). db push OK.
+- Permission MANAGE_PARTNERS (ADMIN tout, EDITOR) ; actions d'audit PARTNER_CREATED / PARTNER_UPDATED + libellés FR.
+- API /api/admin/associations : GET (liste complète), POST (création, slug auto via generateUniquePartnerSlug, 1 à 4 domaines validés actifs), PATCH ?id= (édition + isActive). Zod strict (URL http(s), téléphone regex, e-mail), unicités nom/slug, jamais de suppression (désactivation, cf. catégories).
+- UI admin /admin/associations (page garde MANAGE_PARTNERS) + associations-manager.tsx : liste avec états (Active/Désactivée, Adhésion ouverte/fermée), dialog création/édition (chips domaines max 4, Switch adhésion, Textarea modalités avec compteurs), AlertDialog activation/désactivation, erreurs de champ API affichées. Nav équipe : lien « Associations » (Handshake) entre Badges et Top 5.
+- Public /associations (force-dynamic) : bandeau pine + compteur « X organisations — dont Y à adhésion ouverte », recherche q (nom/sigle/mission/ville/région) et chips-filtres par domaine (formulaire GET natif, sans JS), affichage GROUPÉ par domaine principal (ordre officiel des catégories) sans filtre, liste simple avec filtre, état vide honnête. Carte : nom+sigle, ville/région, mission tronquée, pastille adhésion verte/grise, lien vers la fiche.
+- Public /associations/[slug] : en-tête (nom, sigle, localisation, domaines cliquables vers le filtre), « Sa mission », ENCART ADHÉSION explicite — vert « Oui, il est possible d'intégrer leur communauté » + modalités, ou neutre « Impossible d'intégrer leur communauté pour le moment » —, coordonnées complètes (site nofollow, mailto, tel), rappel que Dora n'est pas intermédiaire. generateMetadata SEO, indexable.
+- Nav publique : « Associations » entre « Les parcours » et « Notre démarche » ; footer colonne Découvrir. Sitemap : /associations + fiches actives (take 500).
+- Seed démo : scripts/seed-associations-demo.ts idempotent (npm run seed:associations) — 10 organisations FICTIVES réalistes (10 domaines, 7 ouvertes / 3 fermées), régions togolaises variées. Exécuté. À remplacer par les organisations réelles via l'admin puis désactiver les démos.
+- Incidents traités : (1) client Prisma pas rechargé après db push → redémarrage serveur ; (2) .env.local à nouveau purgé par le sandbox → secrets désormais dans .env (survit) ET .env.local, chmod 600 ; (3) src/app/admin/associations/page.tsx supprimé par le sandbox après écriture → réécrit ; (4) SECURITY : .zscripts/env-backup.txt committé par erreur avec le NEXTAUTH_SECRET → retiré du dépôt (e374123), .zscripts/ gitignoré, secret RÉGÉNÉRÉ immédiatement (l'ancien est invalide), serveur relancé.
+- Vérifications E2E : annuaire groupé « Éducation et formation (6)… », filtre ?domaine= 200, recherche ?q=Sokodé 200, fiche ouverte (encart vert + modalités) / fiche fermée (« Impossible d'intégrer… » + explication), 404 hors annuaire et après désactivation ; admin : création « Org Test E2E » (toast, liste, publique visible) → édition adhésion fermée (publique bascule) → désactivation (404 publique, toast, badge Désactivée) ; journal d'audit PARTNER_CREATED + PARTNER_UPDATED tracés avec auteur ; org test supprimée en base (10 organisations propres). sitemap 200 ; iPhone 14 sans débordement ; captures associations-desktop.png / association-detail-ouverte.png / associations-mobile.png ; 0 erreur console ; lint 0 erreur.
+- Commits : e3e4318 (feature) + e374123 (security) poussés sur main.
+
+Stage Summary:
+- L'annuaire des associations et ONG est en ligne : classé par domaine d'intervention, avec pour chaque organisation la réponse claire à « peut-on intégrer leur communauté ? » et les modalités transmises.
+- L'équipe gère l'annuaire depuis /admin/associations (ADMIN et EDITOR), avec traçabilité complète.
+- 10 organisations de démonstration en place (fictives) : à remplacer par les données réelles côté admin.
+- Rotation du NEXTAUTH_SECRET effectuée après une exposition accidentelle sur le dépôt public (ancien secret invalide) ; .zscripts/ n'est plus versionné.
